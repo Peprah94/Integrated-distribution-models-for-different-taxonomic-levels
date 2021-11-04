@@ -59,24 +59,7 @@ sigma_sim <- function(n){
   return(cov)
 }
 
-sig_new <- function(n, NLatent){
-  nu = 1; a1 = 2; b1=2; a2 = 2; b2=1; ns=n; nf=NLatent
-  set.seed(0)
-  Delta = matrix(c(rgamma(1,a1,b1), rgamma(nf-1,a2,b2)))
-  Psi = matrix(rgamma(nf*ns, nu/2, nu/2), ns, nf)
-  tau=apply(Delta,2,cumprod)
-  tauMat = t(matrix(tau, nf,ns))
-  Lambda=matrix(rnorm(nf*ns*sqrt(Psi*tauMat)^{-1}), ns, nf)
-  Lambda1 <- matrix(NA, nrow=ns, ncol=nf)
-
-  #sig_inv = rgamma(ns, 2,1)
-  sigma_inv = rep(0.1, ns)
-  Sigma = diag(sigma_inv)
-  
-  Omega = Lambda %*% t(Lambda)+Sigma
-  return(Omega)
-}
-
+# Function that simulates the data
 sim <- function(input, seed){
   n.sites = input$constants$n.sites
   n.species = input$constants$n.species
@@ -143,8 +126,7 @@ sim <- function(input, seed){
   
   # mean abundance
   lambda.s <- exp(mu) 
-  #lambda.s <- -log(1-psi.s)
-  #psi.s <- 1-exp(-lambda.s) 
+
   
   #mean abundance for genus
   lambda.g <- rowSums(lambda.s) 
@@ -196,10 +178,6 @@ sim <- function(input, seed){
   # Returning the results
   data <- list(mat.species=x,
                mat.genus = y,
-               #hill_number=hill_number, 
-               #shan.index=shan.index, 
-               #eveness=eveness,
-               #hill_index = q,
                pis = pis,
                ecological_cov =input$covariate$ecological ,
                detection_cov = input$covariate$detection)
@@ -234,88 +212,21 @@ input10 <- list(
       alpha1 = rnorm(30,0,3)
     )
   ),
-  #interaction = sig_new(10,5)
-  #interaction = diag(10)
   interaction = sigma_sim(30)
 )
 
-input20 <- list(
-  constants = list(
-    n.sites = 75,
-    n.species = 30,
-    n.visit = 3,
-    n.id= 45,
-    n.gen= 55,
-    n.replicate = 5,
-    q = 2
-  ) ,
-  covariate =list(
-    ecological = runif(75, -1,1),
-    detection = runif(75,-1,1)
-  ),
-  parameters = list(
-    ecological=list(
-      # beta0 = c(2, 1, 3, 2, 1, 2, 3, 1, 2, 2),
-      #beta1 = c(-2, 3, 1.5, 1, -1, 2, 2, 0, 0.5, -1.5)
-      beta0 = rnorm(30,0,1),
-      beta1=rnorm(30,0,1)
-    ),
-    detection=list(
-      alpha0 = rnorm(30,0,3),
-      alpha1 = rnorm(30,0,3)
-    )
-  ),
-  #interaction = sig_new(10,5)
-  #interaction = diag(10)
-  interaction = sigma_sim(30)
-)
 
-input30 <- list(
-  constants = list(
-    n.sites = 75,
-    n.species = 30,
-    n.visit = 3,
-    n.id= 45,
-    n.gen= 55,
-    n.replicate = 5,
-    q = 2
-  ) ,
-  covariate =list(
-    ecological = runif(75, -1,1),
-    detection = runif(75,-1,1)
-  ),
-  parameters = list(
-    ecological=list(
-      # beta0 = c(2, 1, 3, 2, 1, 2, 3, 1, 2, 2),
-      #beta1 = c(-2, 3, 1.5, 1, -1, 2, 2, 0, 0.5, -1.5)
-      beta0 = rnorm(30,0,1),
-      beta1=rnorm(30,0,1)
-    ),
-    detection=list(
-      alpha0 = rnorm(30,0,3),
-      alpha1 = rnorm(30,0,3)
-    )
-  ),
-  #interaction = sig_new(10,5)
-  #interaction = diag(10)
-  interaction = sigma_sim(30)
-)
+input_list_na <- list(input10)
 
-input_list_na <- list(input10,input20, input30)
-
-
-
-
-nreplicates <- 20
+niter <- 60
 simulations_all <- pblapply(input_list_na, function(x){
-  pblapply(1:nreplicates, function(z){
+  pblapply(1:niter, function(z){
   data <- sim(x, seed = z)
   }, cl=4)
 }, cl=4)
 
 simulations_all_na <- flatten(simulations_all)
 
-#simulations_all =sim(input)
 save(simulations_all_na, file="sim_interractions_na.RData")
 save(input_list_na, file="sim_input_na.RData")
 

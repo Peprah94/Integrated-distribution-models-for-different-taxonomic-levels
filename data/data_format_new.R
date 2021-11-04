@@ -1,5 +1,5 @@
 #load data
-#setwd("~/Documents/GitHub/Thesis/idm project/Data")
+
 library(unix)
 unix::rlimit_as(100*10^9)
 library(readr)
@@ -13,22 +13,6 @@ library(foreach)
 library(MCMCglmm)
 library(pbapply)
 
-#source('sim_rep.R')
-#source('~/Documents/GitHub/integrated_dist_model/nimble.R')
-#source('~/Documents/GitHub/integrated_dist_model/estimation.R')
-#source('shanestimate.R')
-
-#source('~/Documents/GitHub/Thesis/idm project/new/sim_rep.R')
-#source('~/Documents/GitHub/Thesis/idm project/new/nimble.R')
-#source('~/Documents/GitHub/Thesis/idm project/new/estimation.R')
-#source('~/Documents/GitHub/Thesis/idm project/new/all.R')
-
-#Reading the data
-#genus_counts <- read_csv("~/Documents/GitHub/Thesis/idm project/Data/FIT_counts.csv")
-#pan_traps <- read_csv("~/Documents/GitHub/Thesis/idm project/Data/pan_traps.csv")
-#species_lookup <- read_csv("~/Documents/GitHub/Thesis/idm project/Data/species_lookup.csv")
-#source('nimble.R')
-#source('estimation.R')
 
 genus_counts <- read_csv("FIT_counts.csv")
 pan_traps <- read_csv("pan_traps.csv")
@@ -59,21 +43,23 @@ update_genus <-genus_counts %>%
 groups <- update_pantraps%>%
   group_by(insect_group)%>%
   group_rows()
+
 #unique id for the species
 unique_id <- update_pantraps%>%
   group_indices(update_pantraps$species)
+
 #unique id for the groups
 group_id <- update_pantraps%>%
   group_indices(update_pantraps$insect_group)
+
 #unique id for the sites
 site_id <- update_pantraps%>%
   group_indices(update_pantraps$X1km_square)
-
 x <- sort(unique(update_pantraps$X1km_square))
 id <- data.frame(X1km_square = x)
+
 #Data with group id
 update_pantraps <- cbind(update_pantraps, unique_id, group_id, site_id)
-
 
 includecov = FALSE
 
@@ -95,28 +81,40 @@ return(X)
 }
 
 
-
-#Function that picks the year and the taxon group and outputs the formatted data to be sent to jags
+#Function that picks the year and the taxon group and outputs the formatted data to be sent to NIMBLE
 data_est <- function(year_id, group_name){
+ 
+  #select the particular group data for all the years
 all_year_spe <- update_pantraps%>%
   filter(insect_group== group_name)%>%
   select(c(11))
+  
+  #get the indices for the years
 all_year_indices <- data.frame(unique_id = sort(unique(all_year_spe$unique_id)))
 
+  #get the data for each year
 pat_year_species <- update_pantraps%>%
   filter(insect_group== group_name & year == year_id)%>%
   select(c(11))
-
+  
+#get the indices for each year
 part_year_indices <- data.frame(unique_id = sort(unique(pat_year_species$unique_id)))
   
+#select the species data only
 species<- update_pantraps%>%
   filter(insect_group== group_name & year == year_id)
 
+ # select the genus data only
 genus <- update_genus %>%
   filter(insect_group== group_name & year == year_id)
 
+  #number of visit for each year
 n.visits <- sort(unique(update_pantraps$month))
+  
+  #number of species in each year and each group
 n.species <- length(unique(species$unique_id))
+  
+  #put the data into each group
 kk_species <-  kk1_species <- list(c())
 for(i in 1:length(n.visits)){
   kk1_species[[i]]<- pivot_wider(data = update_pantraps, values_from="n_traps_present", 
@@ -125,11 +123,9 @@ for(i in 1:length(n.visits)){
    select(-c(1,3:8, 10,11))%>%
    melt(id=c("X1km_square", "unique_id"))%>%
    filter(variable == n.visits[i])%>%
- # distinct(X1km_square,unique_id, .keep_all = TRUE)%>%
   dcast( X1km_square~unique_id ,value.var ="value",fun.aggregate = mean, na.rm = TRUE, drop = FALSE)%>%
     mutate_all(~replace(.,is.nan(.),NA))%>%
     select(-1)
-  #full_join(id, by = "X1km_square",all = TRUE)
  
 species_sites <- pivot_wider(data = update_pantraps, values_from="n_traps_present", 
                             names_from="month")%>%
@@ -137,7 +133,6 @@ species_sites <- pivot_wider(data = update_pantraps, values_from="n_traps_presen
   select(-c(1,3:8, 10,11))%>%
   melt(id=c("X1km_square", "unique_id"))%>%
   filter(variable == n.visits[i])%>%
-  # distinct(X1km_square,unique_id, .keep_all = TRUE)%>%
   dcast( X1km_square~unique_id ,value.var ="value",fun.aggregate = mean, na.rm = TRUE, drop = FALSE)%>%
   mutate_all(~replace(.,is.nan(.),NA))%>%
   select(1)
@@ -150,9 +145,7 @@ visit_species_data <- array(NA, dim=c(species_dim[1],species_dim[2],5))
 for(i in 1:species_dim[1]){
   for(j in 1:species_dim[2]){
     if(sum(is.na(kk2_species[i,j,])) < 5){
-      #for(k in 1:5){
     visit_species_data[i,j,] <- unique_visit(kk2_species[i,j,])
-     #}
     }else{
       visit_species_data[i,j,] <- rep(NA,5)   
      }

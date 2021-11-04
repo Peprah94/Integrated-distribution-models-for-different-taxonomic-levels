@@ -42,23 +42,6 @@ require("LaplacesDemon")
 #library(rWishart)
 library(pbapply)
 
-
-sigma_sim <- function(n){
-  # S <- toeplitz((n:1)/n)
-  #S <- diag(n)
-  # R <- rWishart(1,(n+1),S, covariance=TRUE)
-  X <- matrix(rnorm(n^2,0,0.2), n, n) # Initialize empty matrix
-  m <- (t(X) + X)/2   # Make symmetric "m"
-  m_lower <- m[lower.tri(m, diag = FALSE)]
-  #m_lower
-  sig <- runif(n,0.2,1)
-  m2 <- matrix(0, n, n)
-  diag(m2) <- sig
-  m2[upper.tri(m2, diag = FALSE)] <- m_lower
-  cov <- t(m2) %*% m2
-  return(cov)
-}
-
 sig_new <- function(n, NLatent){
   nu = 1; a1 = 2; b1=2; a2 = 2; b2=1; ns=n; nf=NLatent
   set.seed(0)
@@ -224,8 +207,6 @@ input10 <- list(
   ),
   parameters = list(
     ecological=list(
-      # beta0 = c(2, 1, 3, 2, 1, 2, 3, 1, 2, 2),
-      #beta1 = c(-2, 3, 1.5, 1, -1, 2, 2, 0, 0.5, -1.5)
       beta0 = rnorm(20,0,1),
       beta1=rnorm(20,0,1)
     ),
@@ -234,88 +215,20 @@ input10 <- list(
       alpha1 = rnorm(20,0,3)
     )
   ),
-  #interaction = sig_new(10,5)
-  #interaction = diag(10)
-  interaction = sigma_sim(20)
-)
-
-input20 <- list(
-  constants = list(
-    n.sites = 75,
-    n.species =20,
-    n.visit = 3,
-    n.id= 45,
-    n.gen= 55,
-    n.replicate = 5,
-    q = 2
-  ) ,
-  covariate =list(
-    ecological = runif(75, -1,1),
-    detection = runif(75,-1,1)
-  ),
-  parameters = list(
-    ecological=list(
-      # beta0 = c(2, 1, 3, 2, 1, 2, 3, 1, 2, 2),
-      #beta1 = c(-2, 3, 1.5, 1, -1, 2, 2, 0, 0.5, -1.5)
-      beta0 = rnorm(20,0,1),
-      beta1=rnorm(20,0,1)
-    ),
-    detection=list(
-      alpha0 = rnorm(20,0,3),
-      alpha1 = rnorm(20,0,3)
-    )
-  ),
-  #interaction = sig_new(10,5)
-  #interaction = diag(10)
-  interaction = sigma_sim(20)
-)
-
-input30 <- list(
-  constants = list(
-    n.sites = 75,
-    n.species =20,
-    n.visit = 3,
-    n.id= 45,
-    n.gen= 55,
-    n.replicate = 5,
-    q = 2
-  ) ,
-  covariate =list(
-    ecological = runif(75, -1,1),
-    detection = runif(75,-1,1)
-  ),
-  parameters = list(
-    ecological=list(
-      # beta0 = c(2, 1, 3, 2, 1, 2, 3, 1, 2, 2),
-      #beta1 = c(-2, 3, 1.5, 1, -1, 2, 2, 0, 0.5, -1.5)
-      beta0 = rnorm(20,0,1),
-      beta1=rnorm(20,0,1)
-    ),
-    detection=list(
-      alpha0 = rnorm(20,0,3),
-      alpha1 = rnorm(20,0,3)
-    )
-  ),
-  #interaction = sig_new(10,5)
-  #interaction = diag(10)
   interaction = sigma_sim(20)
 )
 
 input_list_na <- list(input10)
 
-
-
-
-nreplicates <- 60
+niter <- 60 #Number of iterations
 simulations_all <- pblapply(input_list_na, function(x){
-  pblapply(1:nreplicates, function(z){
+  pblapply(1:niter, function(z){
   data <- sim(x, seed = z)
   }, cl=4)
 }, cl=4)
 
 simulations_all_na <- flatten(simulations_all)
 
-#simulations_all =sim(input)
 save(simulations_all_na, file="sim_interractions_na.RData")
 save(input_list_na, file="sim_input_na.RData")
 

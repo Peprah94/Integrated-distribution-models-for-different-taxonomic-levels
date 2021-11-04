@@ -1,10 +1,8 @@
+#Load simulated data
 load("sim_interractions_na.RData")
-
 source("fnx_for estimation.R")
 
-
-
-
+#Load required packages
 require(coda)
 require(nimble)
 require(devtools)
@@ -20,6 +18,7 @@ library(pbapply)
 
 handlers(global = TRUE)
 
+#Function to run nimble model
 run_nimble_model <- function(simulations_all){
   
   # Set up
@@ -43,11 +42,7 @@ run_nimble_model <- function(simulations_all){
     #############################################################
     for(spe.tag in 1:n.species){
       beta0[spe.tag]~ dnorm(0, sd=1) 
-      #mean.lambda[spe.tag] <- exp(beta0[spe.tag])
-      #beta0[spe.tag] <- log(mean.lambda[spe.tag])
-      #mean.lambda[spe.tag] ~ dunif(0,50)
       alpha0[spe.tag] ~  dnorm(0,sd=10)
-      #mean.p[spe.tag] ~ dunif(0,1)
       beta1[spe.tag] ~ dnorm(0,sd=10)
       alpha1[spe.tag] ~ dnorm(0,sd=10)
     }
@@ -258,7 +253,6 @@ run_nimble_model <- function(simulations_all){
 }
 
 ## Run the simulations
-#run_nimble_model(simulations_all)
 cl <- makeCluster(5)
 setDefaultCluster(cl)
 species_estimates_na <- pblapply(simulations_all_na, run_nimble_model, cl=cl)

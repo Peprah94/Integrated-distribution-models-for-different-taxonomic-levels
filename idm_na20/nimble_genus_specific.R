@@ -1,7 +1,8 @@
+# Load data
 load("sim_interractions_na.RData")
-
 source("fnx_for estimation.R")
 
+#Load packages
 require(coda)
 require(nimble)
 require(devtools)
@@ -17,6 +18,7 @@ library(pbapply)
 
 handlers(global = TRUE)
 
+#run the MCMC
 run_nimble_model <- function(simulations_all){
   
   # Set up
@@ -40,11 +42,7 @@ run_nimble_model <- function(simulations_all){
     #############################################################
     for(spe.tag in 1:n.species){
       beta0[spe.tag]~ dnorm(0, sd=1) 
-      #mean.lambda[spe.tag] <- exp(beta0[spe.tag])
-      #beta0[spe.tag] <- log(mean.lambda[spe.tag])
-      #mean.lambda[spe.tag] ~ dunif(0,50)
       alpha0[spe.tag] ~  dnorm(0,sd=10)
-      #mean.p[spe.tag] ~ dunif(0,1)
       beta1[spe.tag] ~ dnorm(0,sd=10)
       alpha1[spe.tag] ~ dnorm(0,sd=10)
     }
@@ -105,19 +103,8 @@ run_nimble_model <- function(simulations_all){
       for(spe.tag in 1:n.species){
         mu[site.tag,spe.tag] <- beta0[spe.tag] + beta1[spe.tag]*ecological_cov[site.tag]+eta.lam[site.tag,spe.tag]
         log(lambda[site.tag, spe.tag]) <-  mu[site.tag,spe.tag]
-        #log(lambda[site.tag, spe.tag]) <-  cloglog(psi[site.tag, spe.tag])
-        #cloglog(psi[site.tag, spe.tag]) <-log(lambda[site.tag, spe.tag])
-        #cloglog(psi[site.tag, spe.tag]) <- mu[site.tag,spe.tag]
       }
     } 
-    
-    #Detection probability
-    for(site.tag in 1:n.sites){
-      for(spe.tag in 1:n.species){
-        logit(p.tag[site.tag, spe.tag]) <- alpha0[spe.tag] + alpha1[spe.tag]*detection_cov[site.tag]
-      }
-    }
-    
 
     # Likelihood: key definitions in the likelihood
     #############################################################
@@ -252,7 +239,7 @@ run_nimble_model <- function(simulations_all){
 }
 
 ## Run the simulations
-#run_nimble_model(simulations_all)
+
 cl <- makeCluster(5)
 setDefaultCluster(cl)
 genus_estimates_na <- pblapply(simulations_all_na, run_nimble_model, cl=cl)

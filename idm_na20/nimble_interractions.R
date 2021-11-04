@@ -1,7 +1,8 @@
+#Load simulated data
 load("sim_interractions_na.RData")
-
 source("fnx_for estimation.R")
 
+# packages needed to run this script
 require(coda)
 require(nimble)
 require(devtools)
@@ -17,6 +18,7 @@ library(pbapply)
 
 handlers(global = TRUE)
 
+#Function to run nimble code
 run_nimble_model <- function(simulations_all){
   
   # Set up
@@ -266,12 +268,11 @@ est_pis <- matrix(estimation[,1][((const$n.species*const$n.species)+((const$n.sp
 return(list(est_pis, est_fixed, estimation))
 }
 
-#cl <- makeCluster(5)
-#setDefaultCluster(cl)
-#inter_estimates_na <- pblapply(simulations_all_na, run_nimble_model, cl=cl)
-inter_estimates_na <- run_nimble_model(simulations_all_na[[1]])
+# Run simulations
+cl <- makeCluster(5)
+setDefaultCluster(cl)
+inter_estimates_na <- pblapply(simulations_all_na, run_nimble_model, cl=cl)
+#inter_estimates_na <- run_nimble_model(simulations_all_na[[1]])
 
 save(inter_estimates_na, file="estimate_inter_na.RData")
-#save(estimate, file="estimate_inter1.RData")
-#mc <- mcmcOutput(estimate$samples)
-#diagPlot(mc, c(101:140))
+

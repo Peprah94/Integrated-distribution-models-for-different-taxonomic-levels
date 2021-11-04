@@ -1,10 +1,8 @@
+#Load data
 load("sim_interractions_na.RData")
-
 source("fnx_for estimation.R")
 
-
-
-
+#Packages needed to run the script
 require(coda)
 require(nimble)
 require(devtools)
@@ -107,9 +105,6 @@ run_nimble_model <- function(simulations_all){
     for(site.tag in 1:n.sites){
       for(spe.tag in 1:n.species){
         mu[site.tag,spe.tag] <- beta0[spe.tag] + beta1[spe.tag]*ecological_cov[site.tag]+eta.lam[site.tag,spe.tag]
-        #log(lambda[site.tag, spe.tag]) <-  mu[site.tag,spe.tag]
-        #log(lambda[site.tag, spe.tag]) <-  cloglog(psi[site.tag, spe.tag])
-       # cloglog(psi[site.tag, spe.tag]) <-log(lambda[site.tag, spe.tag])
         cloglog(psi[site.tag, spe.tag]) <- mu[site.tag,spe.tag]
         lambda[site.tag, spe.tag] <- exp(mu[site.tag,spe.tag])
       }
@@ -145,12 +140,11 @@ run_nimble_model <- function(simulations_all){
         pis[site.tag, spe.tag] <- (lambda[site.tag,spe.tag]/lambda.g[site.tag])
       }
     }
-    
-    #sumLogProb ~ dnorm(0,1)
   })
   
-  data <- simulations_all
+
   #dimensions of the data
+    data <- simulations_all
   dim_data <- dim(data[[1]]) 
   data_dim <- dim_data[2] 
   
@@ -258,7 +252,6 @@ run_nimble_model <- function(simulations_all){
 }
 
 ## Run the simulations
-#run_nimble_model(simulations_all)
 cl <- makeCluster(5)
 setDefaultCluster(cl)
 species_estimates_na <- pblapply(simulations_all_na, run_nimble_model, cl=cl)

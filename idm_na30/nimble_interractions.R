@@ -270,6 +270,4 @@ setDefaultCluster(cl)
 inter_estimates_na <- pblapply(simulations_all_na, run_nimble_model, cl=cl)
 
 save(inter_estimates_na, file="estimate_inter_na.RData")
-#save(estimate, file="estimate_inter1.RData")
-#mc <- mcmcOutput(estimate$samples)
-#diagPlot(mc, c(101:140))
+

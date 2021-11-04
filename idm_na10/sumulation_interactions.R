@@ -27,7 +27,7 @@ myinvclog <- function(mu){
 }
 
 
-
+# Packages required to run this script
 require(coda)
 require(nimble)
 require(devtools)
@@ -39,10 +39,9 @@ require(dplyr)
 require(stringr)
 require(MASS)
 require("LaplacesDemon")
-#library(rWishart)
 library(pbapply)
 
-
+# Simulation of covariance matrix for interraction effect
 sigma_sim <- function(n){
   # S <- toeplitz((n:1)/n)
   #S <- diag(n)
@@ -59,33 +58,17 @@ sigma_sim <- function(n){
   return(cov)
 }
 
-sig_new <- function(n, NLatent){
-  nu = 1; a1 = 2; b1=2; a2 = 2; b2=1; ns=n; nf=NLatent
-  set.seed(0)
-  Delta = matrix(c(rgamma(1,a1,b1), rgamma(nf-1,a2,b2)))
-  Psi = matrix(rgamma(nf*ns, nu/2, nu/2), ns, nf)
-  tau=apply(Delta,2,cumprod)
-  tauMat = t(matrix(tau, nf,ns))
-  Lambda=matrix(rnorm(nf*ns*sqrt(Psi*tauMat)^{-1}), ns, nf)
-  Lambda1 <- matrix(NA, nrow=ns, ncol=nf)
-
-  #sig_inv = rgamma(ns, 2,1)
-  sigma_inv = rep(0.1, ns)
-  Sigma = diag(sigma_inv)
-  
-  Omega = Lambda %*% t(Lambda)+Sigma
-  return(Omega)
-}
-
 sim <- function(input, seed){
-  n.sites = input$constants$n.sites
-  n.species = input$constants$n.species
-  n.visit = input$constants$n.visit
-  n.id = input$constants$n.id
-  n.gen = input$constants$n.gen
-  n.replicate= input$constants$n.replicate
-  q = input$constants$q
+  #extracting inputs for the functions
+  n.sites = input$constants$n.sites #no. of sites
+  n.species = input$constants$n.species #no. of species
+  n.visit = input$constants$n.visit #no. of visits
+  n.id = input$constants$n.id 
+  n.gen = input$constants$n.gen 
+  n.replicate= input$constants$n.replicate #no. of replicate eg. no of traps
+  q = input$constants$q #hills index exponent
   
+  #Set seed
   set.seed(seed)
   
   #### CHECKS
@@ -124,7 +107,7 @@ sim <- function(input, seed){
   x <- array(NA, dim = c(n.sites, n.species, n.visit))
   y <- matrix(NA, nrow=n.sites, ncol=n.visit)
   
-  # Simulation of interaction
+  # Simulation of interaction effect
   for(site.tag in 1:n.sites){
     epsilon[site.tag,] = mvrnorm(1,rep(0, n.species),input$interaction )
   }
@@ -143,8 +126,6 @@ sim <- function(input, seed){
   
   # mean abundance
   lambda.s <- exp(mu) 
-  #lambda.s <- -log(1-psi.s)
-  #psi.s <- 1-exp(-lambda.s) 
   
   #mean abundance for genus
   lambda.g <- rowSums(lambda.s) 
@@ -157,7 +138,7 @@ sim <- function(input, seed){
   }
   p.tag <- invlogit(eta)
   
-  #Simulation of observation process
+  #Simulation of observation process for the species presence-absence data
   for(site.tag in 1:n.sites){
     for(spe.tag in 1:n.species){
       #True presence or absence
@@ -181,6 +162,8 @@ sim <- function(input, seed){
   
   pis <- lambda.s/lambda.g
   
+  #I estimate the hills index from the pis when performing evaluations on the parameters
+  
   # Hill's number D for a given q
   #hill_number <- (rowSums((lambda.s/lambda.g)^q))^(1/(1-q))
   
@@ -196,10 +179,6 @@ sim <- function(input, seed){
   # Returning the results
   data <- list(mat.species=x,
                mat.genus = y,
-               #hill_number=hill_number, 
-               #shan.index=shan.index, 
-               #eveness=eveness,
-               #hill_index = q,
                pis = pis,
                ecological_cov =input$covariate$ecological ,
                detection_cov = input$covariate$detection)
@@ -224,8 +203,6 @@ input10 <- list(
   ),
   parameters = list(
     ecological=list(
-     # beta0 = c(2, 1, 3, 2, 1, 2, 3, 1, 2, 2),
-      #beta1 = c(-2, 3, 1.5, 1, -1, 2, 2, 0, 0.5, -1.5)
       beta0 = rnorm(10,0,1),
       beta1=rnorm(10,0,1)
     ),
@@ -234,90 +211,24 @@ input10 <- list(
       alpha1 = rnorm(10,0.3)
     )
   ),
-  #interaction = sig_new(10,5)
-  #interaction = diag(10)
-  interaction = sigma_sim(10)
-)
-
-input20 <- list(
-  constants = list(
-    n.sites = 75,
-    n.species = 10,
-    n.visit = 3,
-    n.id= 45,
-    n.gen= 55,
-    n.replicate = 5,
-    q = 2
-  ) ,
-  covariate =list(
-    ecological = runif(75, -1,1),
-    detection = runif(75,-1,1)
-  ),
-  parameters = list(
-    ecological=list(
-      # beta0 = c(2, 1, 3, 2, 1, 2, 3, 1, 2, 2),
-      #beta1 = c(-2, 3, 1.5, 1, -1, 2, 2, 0, 0.5, -1.5)
-      beta0 = rnorm(10,0,1),
-      beta1=rnorm(10,0,1)
-    ),
-    detection=list(
-      alpha0 = rnorm(10,0,3),
-      alpha1 = rnorm(10,0.3)
-    )
-  ),
-  #interaction = sig_new(10,5)
-  #interaction = diag(10)
   interaction = sigma_sim(10)
 )
 
 
-input30 <- list(
-  constants = list(
-    n.sites = 75,
-    n.species = 10,
-    n.visit = 3,
-    n.id= 45,
-    n.gen= 55,
-    n.replicate = 5,
-    q = 2
-  ) ,
-  covariate =list(
-    ecological = runif(75, -1,1),
-    detection = runif(75,-1,1)
-  ),
-  parameters = list(
-    ecological=list(
-      # beta0 = c(2, 1, 3, 2, 1, 2, 3, 1, 2, 2),
-      #beta1 = c(-2, 3, 1.5, 1, -1, 2, 2, 0, 0.5, -1.5)
-      beta0 = rnorm(10,0,1),
-      beta1=rnorm(10,0,1)
-    ),
-    detection=list(
-      alpha0 = rnorm(10,0,3),
-      alpha1 = rnorm(10,0.3)
-    )
-  ),
-  #interaction = sig_new(10,5)
-  #interaction = diag(10)
-  interaction = sigma_sim(10)
-)
+input_list_na <- list(input10)
 
 
-input_list_na <- list(input10,input20, input30)
-
-
-
-
-nreplicates <- 20
+niter <- 60 #No of simulations run
 simulations_all <- pblapply(input_list_na, function(x){
-  pblapply(1:nreplicates, function(z){
+  pblapply(1:niter, function(z){
   data <- sim(x, seed = z)
   }, cl=4)
 }, cl=4)
 
+# 
 simulations_all_na <- flatten(simulations_all)
 
-#simulations_all =sim(input)
+# save the results for later use
 save(simulations_all_na, file="sim_interractions_na.RData")
 save(input_list_na, file="sim_input_na.RData")
 

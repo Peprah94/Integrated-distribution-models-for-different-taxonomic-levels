@@ -1,7 +1,9 @@
-load("sim_interractions_na.RData")
+#Load the data
 
+load("sim_interractions_na.RData")
 source("fnx_for estimation.R")
 
+# Packages required to run this script
 require(coda)
 require(nimble)
 require(devtools)
@@ -34,6 +36,7 @@ run_nimble_model <- function(simulations_all){
   library(parallel)
   library(foreach)
 ############################################
+  
 code <- nimbleCode({
   
   #############################################################
@@ -62,7 +65,7 @@ code <- nimbleCode({
   #omega[1:n.species,1:n.species] ~ dwish(R[1:n.species,1:n.species], df)
   #sigma2[1:n.species,1:n.species] <- inverse(omega[1:n.species,1:n.species])
   
-  #Priors for covariance matrix
+  #Priors for covariance matrix (using the multiplicative shrinkage prior)
   a1 ~ dgamma(2,1)
   a2 ~ dgamma(2,1)
   delta[1] ~ dgamma(a1,1)
@@ -91,7 +94,7 @@ code <- nimbleCode({
   }
   #Cov[1:n.species, 1:n.species] <- diag(n.species)
   
-  
+ #Covariance matrix
  Cov[1:n.species, 1:n.species] <- lamLatent[1:n.species, 1:NLatent] %*% t(lamLatent[1:n.species, 1:NLatent]) + Sigma[1:n.species, 1:n.species]
     for (spe.tag in 1:n.species) {
     for (ss in 1:n.species) {
@@ -118,7 +121,6 @@ precmatrix[1:n.species, 1:n.species] <- inverse(Cov[1:n.species, 1:n.species])
      logit(p.tag[site.tag, spe.tag]) <- alpha0[spe.tag] + alpha1[spe.tag]*detection_cov[site.tag]
     }
   }
-  #p.tag ~ dunif(0.001,1) 
   
   # Likelihood: key definitions in the likelihood
   #############################################################
@@ -155,15 +157,12 @@ precmatrix[1:n.species, 1:n.species] <- inverse(Cov[1:n.species, 1:n.species])
     }
   }
 
- # sumLogProb ~ dnorm(0,1)
 })
 
+#dimensions of the data  
 data <- simulations_all
-#dimensions of the data
 dim_data <- dim(data[[1]]) 
 data_dim <- dim_data[2] 
-
-
 
 # Constants for the model 
 const <- list(n.sites = dim_data[1], 
@@ -176,10 +175,10 @@ const <- list(n.sites = dim_data[1],
               b.sigma=1
 )
 
-
 #R and df
 Rmat <- diag(const$n.species)
 df <- const$n.species + 1 
+  
 #Data for the model
 idm_data <- list(Y = simulations_all[[2]], 
                  X = simulations_all[[1]], 
@@ -243,6 +242,7 @@ Cmwtc <- compileNimble(mwtc)
   mcmcconf <- configureMCMC(Cmwtc, monitors = c("beta0", "beta1", "alpha0","alpha1", "pis","CorrIn"))
 #mcmcconf <- configureMCMC(Cmwtc, monitors = c("beta0", "beta1", "alpha0","alpha1"))
 
+  #use block sampling for the parameters of the multiplicative gamma process shrinkage prior
  mcmcconf$removeSamplers(c("lamLatent", "phi","sig", "delta", "a1", "a2"))
  mcmcconf$addSampler(c("lamLatent", "phi","sig", "delta", "a1", "a2"), "RW_block")
  #mcmcconf$addSampler(c("lamLatent", "phi","sig", "delta", "a1", "a2"), "crossLevel")
@@ -271,6 +271,4 @@ setDefaultCluster(cl)
 inter_estimates_na <- pblapply(simulations_all_na, run_nimble_model, cl=cl)
 
 save(inter_estimates_na, file="estimate_inter_na.RData")
-#save(estimate, file="estimate_inter1.RData")
-#mc <- mcmcOutput(estimate$samples)
-#diagPlot(mc, c(101:140))
+

@@ -1,7 +1,8 @@
+#Load the simulated data
 load("sim_interractions_na.RData")
-
 source("fnx_for estimation.R")
 
+#Packages needed to run this script
 require(coda)
 require(nimble)
 require(devtools)
@@ -17,6 +18,7 @@ library(pbapply)
 
 handlers(global = TRUE)
 
+#Function that runs the nimble model
 run_nimble_model <- function(simulations_all){
   
   # Set up
@@ -40,11 +42,7 @@ run_nimble_model <- function(simulations_all){
     #############################################################
     for(spe.tag in 1:n.species){
       beta0[spe.tag]~ dnorm(0, sd=1) 
-      #mean.lambda[spe.tag] <- exp(beta0[spe.tag])
-      #beta0[spe.tag] <- log(mean.lambda[spe.tag])
-      #mean.lambda[spe.tag] ~ dunif(0,50)
       alpha0[spe.tag] ~  dnorm(0,sd=10)
-      #mean.p[spe.tag] ~ dunif(0,1)
       beta1[spe.tag] ~ dnorm(0,sd=10)
       alpha1[spe.tag] ~ dnorm(0,sd=10)
     }
@@ -61,7 +59,7 @@ run_nimble_model <- function(simulations_all){
     #omega[1:n.species,1:n.species] ~ dwish(R[1:n.species,1:n.species], df)
     #sigma2[1:n.species,1:n.species] <- inverse(omega[1:n.species,1:n.species])
     
-    #Priors for covariance matrix
+    #Priors for covariance matrix of the multiplicative gamma shrinkage prior
     a1 ~ dgamma(2,1)
     a2 ~ dgamma(2,1)
     delta[1] ~ dgamma(a1,1)
@@ -100,24 +98,14 @@ run_nimble_model <- function(simulations_all){
     }
     
     precmatrix[1:n.species, 1:n.species] <- inverse(Cov[1:n.species, 1:n.species])
+    
     #Link between the abundance and occupancy
     for(site.tag in 1:n.sites){
       for(spe.tag in 1:n.species){
         mu[site.tag,spe.tag] <- beta0[spe.tag] + beta1[spe.tag]*ecological_cov[site.tag]+eta.lam[site.tag,spe.tag]
         log(lambda[site.tag, spe.tag]) <-  mu[site.tag,spe.tag]
-        #log(lambda[site.tag, spe.tag]) <-  cloglog(psi[site.tag, spe.tag])
-        #cloglog(psi[site.tag, spe.tag]) <-log(lambda[site.tag, spe.tag])
-        #cloglog(psi[site.tag, spe.tag]) <- mu[site.tag,spe.tag]
       }
     } 
-    
-    #Detection probability
-    for(site.tag in 1:n.sites){
-      for(spe.tag in 1:n.species){
-        logit(p.tag[site.tag, spe.tag]) <- alpha0[spe.tag] + alpha1[spe.tag]*detection_cov[site.tag]
-      }
-    }
-    
 
     # Likelihood: key definitions in the likelihood
     #############################################################
@@ -140,7 +128,7 @@ run_nimble_model <- function(simulations_all){
         pis[site.tag, spe.tag] <- (lambda[site.tag,spe.tag]/lambda.g[site.tag])
       }
     }
-    #sumLogProb ~ dnorm(0,1)
+
   })
   
   data <- simulations_all

@@ -1,3 +1,4 @@
+# Packages needed to run the code
 library(ggplot2)
 library(pbapply)
 library(reshape2)
@@ -8,7 +9,6 @@ library(ggpubr)
 library(pbapply)
 library(ggplot2)
 source("fnx_for estimation.R")
-theme_update(text = element_text(size=20))
 
 ###################
 # NO MISSING DATA
@@ -51,7 +51,6 @@ species_est10 <- lapply(species_estimates_na, function(x){
 species_prop10 <- lapply(species_estimates_na, function(x){
   if(class(x)!= "try-error"){x[[1]]}
 })
-
 
 #Retrieving the median of the pi's for the three approaches
 # The posterior is skewed seem to be skewed.
@@ -96,7 +95,6 @@ hills_species10<- pblapply(species_med10, function(x){
   }, cl=1)
 }, cl=1)
 
-
 #Loading data for N.species =20
 load("/Volumes/kwakupa/idm_miss_na20/estimate_inter_na.RData")
 load("/Volumes/kwakupa/idm_miss_na20/estimate_genus_na.RData")
@@ -112,7 +110,6 @@ inter_prop20 <- lapply(inter_estimates_na, function(x){
 inter_est20<- lapply(inter_estimates_na, function(x){
   if(class(x)!= "try-error"){x[[3]][401:480,2]}
 })
-
 
 #Genus only approach
 #pi's
@@ -181,9 +178,6 @@ hills_species20<- pblapply(species_med20, function(x){
 }, cl=1)
 
 #30 species
-#load("/Volumes/kwakupa/idm_miss_na_30/estimate_genus_na.RData")
-#load("/Volumes/kwakupa/idm_miss_na_30/estimate_inter_na.RData")
-#load("/Volumes/kwakupa/idm_miss_na_30/estimate_species_na.RData")
 load("/Volumes/kwakupa/idm_na30/estimate_inter_na30.RData")
 load("/Volumes/kwakupa/idm_na30/estimate_species_na30.RData")
 load("/Volumes/kwakupa/idm_na30/estimate_genus_na.RData")
@@ -257,7 +251,6 @@ hills_species30 <- pblapply(species_med30, function(x){
 ###################
 
 #Read the data for the N.species = 10 data set
-#load("/Volumes/kwakupa/idm_na10/estimate_inter_na.RData")
 load("/Volumes/kwakupa/idm_na10/estimate_genus_na.RData")
 load("/Volumes/kwakupa/idm_na10/estimate_species_na.RData")
 load("/Volumes/kwakupa/idm_miss_na_10/estimate_inter_na.RData")
@@ -691,20 +684,9 @@ n1 <- 60 * 75*length(q) #The numbers for each group
 groups <- c(rep("IDM",n ), rep("Species Only",n ),rep("Genus only",n ))
 sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP=20", n1),rep("N.SP=30", n1),
                rep("N.SP= 10 (MI)", n1), rep("N.SP= 20 (MI)", n1),rep("N.SP= 30 (MI)", n1)),3)
-#sim_group <- rep(c(rep("sim1", 15000), rep("sim2", 15000), rep("sim3", 15000)),2)
-all_data <- cbind(do.call("rbind", data_flat), groups=groups, sim_group=sim_group)
-#all_data <- data_flat %>% reduce(bind_rows)
-#all_data%>%
- # filter(x==1)%>%
 
-#ggplot(all_data)+
- # geom_boxplot(mapping = aes(x=variable, y=value, fill=groups,col=as.factor(sim_group)))+
- # transition_states(states=site,
-  #                  transition_length = 75)#,
-                   # state_length = 1,
-                    #wrap=FALSE
-                   #)#+
-  #labs(title = "Site: {frame_time}")
+all_data <- cbind(do.call("rbind", data_flat), groups=groups, sim_group=sim_group)
+
 all_data1 <- all_data%>%
   filter(site==10)
 
@@ -718,35 +700,16 @@ all_data_true_30 <- dd_30%>%
   filter(site<=1)
 
 ggplot()+
-  geom_boxplot(all_data1,mapping = aes(x=variable, y=value, fill=groups))+#,col=as.factor(sim_group)
-  #geom_boxplot(data=all_data_true_10,mapping=aes(x=variable, y= med_value))+
- # geom_boxplot(data=all_data_true_20,mapping=aes(x=variable, y= med_value))+
-  #geom_boxplot(data=all_data_true_30,mapping=aes(x=variable, y= med_value))+
+  geom_boxplot(all_data1,mapping = aes(x=variable, y=value, fill=groups))
   theme_bw()+
   ylab("Hill's numbers")+
   xlab("q")+
   theme(legend.position = c(0.95,1))+
-  #scale_fill_discrete(name="Method")+
   scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
   scale_x_discrete(labels=c("0","0.1","0.2",
                             "0.3","0.4","0.5",
                             "0.6","0.7","0.8","0.9"))+
   facet_wrap( ~site+sim_group, ncol=3)
-# transition_states(states=site,
-#                  transition_length = 75)#,
-# state_length = 1,
-#wrap=FALSE
-#)#+
-#labs(title = "Site: {frame_time}")
-
-
-#inter_prop <- c(inter_prop10,inter_prop20,inter_prop30,
-                #inter_prop10_na,inter_prop20_na,inter_prop30_na)
-#genus_prop <- c(genus_prop10,genus_prop20,genus_prop30,
-                #genus_prop10_na,genus_prop20_na,genus_prop30_na)
-#species_prop <- c(species_prop10,species_prop20,species_prop30,
-                 # species_prop10_na,species_prop20_na,species_prop30_na)
-
 
 #Extracting the proportions
 true_sim <- c(true_sim_prop10 ,true_sim_prop20 ,true_sim_prop30,
@@ -877,15 +840,7 @@ n1 <- (60)*75
 groups <- c(rep("IDM",n ), rep("Species only",n ),rep("Genus only",n ))
 sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP=20", n1),rep("N.SP=30", n1),
                    rep("N.SP= 10 (MI)", n1), rep("N.SP= 20 (MI)", n1),rep("N.SP= 30 (MI)", n1)),3) #Two by three groups
-#sim_group <- rep(c(rep("sim1", n1), rep("sim2", n1), rep("sim3", n1)),6) #Two by three groups
 all_data1 <- cbind(do.call("rbind", data_flat), groups=groups, sim_group=sim_group)
-
-
-#ggplot(all_data)+
-#  geom_boxplot(mapping = aes(x=as.factor(site), y=value, fill=groups,col=as.factor(groups)))+
-#  transition_states(states=sim_group,
-#                    transition_length = 3
-#  )
 
 all_data1%>%
   filter(site <= 4)%>%
@@ -972,15 +927,9 @@ n1 <- (60)*75
 groups <- c(rep("IDM",n ), rep("Species only",n ),rep("Genus only",n ))
 sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP=20", n1),rep("N.SP=30", n1),
                    rep("N.SP= 10 (MI)", n1), rep("N.SP= 20 (MI)", n1),rep("N.SP= 30 (MI)", n1)),3) #Two by three groups
-#sim_group <- rep(c(rep("sim1", 1500), rep("sim2", 1500), rep("sim3", 1500)),3)
+
 all_data <- cbind(do.call("rbind", data_flat), groups=groups, sim_group=sim_group)
 
-
-#ggplot(all_data)+
-#  geom_boxplot(mapping = aes(x=as.factor(site), y=value, fill=groups,col=as.factor(groups)))+
-#  transition_states(states=sim_group,
-#                    transition_length = 3
-#  )
 all_data%>%
   filter(site <= 4)%>%
 ggplot()+
@@ -1147,7 +1096,6 @@ gg_shan_mse <- ggplot(est_data_melt)+
   ylab("")+
   xlab("")+
   theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
-  #scale_fill_discrete(name="Method")+
   scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")
 
 
@@ -1157,7 +1105,6 @@ gg_even_mse <- ggplot(est_data_melt)+
   ylab("")+
   xlab("")+
   theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
-  #scale_fill_discrete(name="Method")+
   scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
   ylim(c(0,1))
 
@@ -1167,31 +1114,7 @@ gg_aed_mse <- ggplot(est_data_melt)+
   ylab("")+
   xlab("")+
   theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
-  #scale_fill_discrete(name="Method")+
   scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")
-
-#est_data_melt1 <-est_data%>%
- # select(groups,sim_group, shannon_bias, eveness_bias)#%>%
-  #melt(id.vars=c("groups", "sim_group"))
-
-#gg_shan_bias <- ggplot(est_data_melt1)+
- # geom_boxplot(aes(x=sim_group, y=shannon_bias, fill=groups))+
- # ylab("Bias")+
-#  xlab("Number of species")+
-#  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
- # scale_fill_discrete(name="Method")+
- # scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
-#  theme_bw()
-
-#gg_eveness_bias <- ggplot(est_data_melt1)+
- # geom_boxplot(aes(x=sim_group, y=eveness_bias, fill=groups))+
- # ylab("Bias")+
- # xlab("Number of species")+
- # theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
-  #scale_fill_discrete(name="Method")+
- # scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
- # theme_bw()#+
-  #ylim(0,1)
 
 ggarrange(gg_even_mse, gg_shan_mse, gg_aed_mse,
           ncol=3, 
@@ -1199,8 +1122,6 @@ ggarrange(gg_even_mse, gg_shan_mse, gg_aed_mse,
           common.legend = TRUE, 
           legend = "bottom",
           labels = c("(a) RMSE of eveness", "(b) RMSE of H'", "(c) RMSE of AED"))
-
-
 
 ##################
 # Estimation of Mahalanobis distance
@@ -1219,17 +1140,12 @@ ggarrange(gg_even_mse, gg_shan_mse, gg_aed_mse,
 #####################################################
 #   Estimates
 ####################################################
-#load("data_idm.RData")
-#load("estimate_genus_data.RData")
-#load("estimate_inter_data.RData")
-#load("estimate_species_data.RData")
+
 ########
 # ALPHA 0
 ########
 load("/Volumes/kwakupa/idm_na10/sim_input_na.RData")
 inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha0)
-#inputs2 <- c(input_list_na[[2]]$parameters$detection$alpha0)
-#inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha0)
 inputs <- list(inputs1)
 true_est10 <- rep(inputs, each=60)
 load("/Volumes/kwakupa/idm_miss_na_10/sim_input_na.RData")
@@ -1237,10 +1153,6 @@ inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha0)
 inputs <- list(inputs1)
 true_est10_na <- rep(inputs, each=60)
 
-#inter_est_mbias_10 <- Map(mahalanobis_est, true_est10, inter_est10)
-#genus_est_mbias_10 <- Map(mahalanobis_est, true_est10, genus_est10)
-#species_est_mbias_10 <- Map(mahalanobis_est, true_est10, species_est10)
-#estimates_mbias10 <- c(inter_est_mbias_10,genus_est_mbias_10,species_est_mbias_10)
 subsetting_alpha0 <- function(x,n.species){
   lapply(x, function(y) y[(n.species+1):(n.species*2)])
 }
@@ -1255,19 +1167,12 @@ estimates_mse10 <- c(inter_est_mse_10,genus_est_mse_10,species_est_mse_10,
 
 load("/Volumes/kwakupa/idm_na20/sim_input_na20.RData")
 inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha0)
-#inputs2 <- c(input_list_na[[2]]$parameters$detection$alpha0)
-#inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha0)
 inputs <- list(inputs1)
 true_est20 <- rep(inputs, each=60)
 load("/Volumes/kwakupa/idm_miss_na20/sim_input_na.RData")
 inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha0)
 inputs <- list(inputs1)
 true_est20_na <- rep(inputs, each=60)
-
-#inter_est_mbias_20 <- Map(mahalanobis_est, true_est20, inter_est20)
-#genus_est_mbias_20 <- Map(mahalanobis_est, true_est20, genus_est20)
-#species_est_mbias_20 <- Map(mahalanobis_est, true_est20, species_est20)
-#estimates_mbias20 <- c(inter_est_mbias_20,genus_est_mbias_20,species_est_mbias_20)
 
 inter_est_mse_20 <- Map(mse, true_est20, subsetting_alpha0(inter_est20,20))
 genus_est_mse_20 <- Map(mse, true_est20, subsetting_alpha0(genus_est10,20))
@@ -1285,11 +1190,6 @@ inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha0)
 inputs <- list(inputs1, inputs2, inputs3)
 true_est30 <- rep(inputs, each=20)
 
-#inter_est_mbias_30 <- Map(mahalanobis_est , true_est30, inter_est30)
-#genus_est_mbias_30 <- Map(mahalanobis_est , true_est30, genus_est30)
-#species_est_mbias_30 <- Map(mahalanobis_est , true_est30, species_est30)
-#estimates_mbias30 <- c(inter_est_mbias_30,genus_est_mbias_30,species_est_mbias_30)
-
 inter_est_mse_30 <- Map(mse, true_est30, subsetting_alpha0(inter_est30,30))
 genus_est_mse_30 <- Map(mse, true_est30, subsetting_alpha0(genus_est30,30))
 species_est_mse_30 <- Map(mse, true_est30, subsetting_alpha0(species_est30,30))
@@ -1299,7 +1199,6 @@ species_est_mse_30_na <- Map(mse, true_est30, subsetting_alpha0(species_est30,30
 estimates_mse30 <- c(inter_est_mse_30,genus_est_mse_30,species_est_mse_30,
                      inter_est_mse_30_na,genus_est_mse_30_na,species_est_mse_30_na)
 
-#all_estimates_mbias <- c(estimates_mbias10,estimates_mbias20,estimates_mbias30)
 all_estimates_mse <- c(estimates_mse10,estimates_mse20,estimates_mse30)
 n_est <- 60 #Number of results for each inter etc. 
 n1 <- 180
@@ -1308,7 +1207,7 @@ groups <- rep(c(rep("IDM",n), rep("Genus only",n ),rep("Species only",n )),6)
 sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP= 10 (MI)", n1), 
                    rep("N.SP=20", n1),rep("N.SP= 20 (MI)", n1),
                    rep("N.SP=30", n1),rep("N.SP= 30 (MI)", n1)),1)
-#all_data_est <- data.frame(cbind(do.call("rbind", all_estimates_mbias),do.call("rbind", all_estimates_mse),groups=groups, sim_group=sim_group))
+
 all_data_est <- data.frame(cbind(do.call("rbind", all_estimates_mse),groups=groups, sim_group=sim_group))
 colnames(all_data_est) <- c("mse", "groups", "sim_group")
 
@@ -1321,12 +1220,10 @@ gg1 <-all_data_est%>%
   ylab("MD of alpha0")+
   xlab("Number of species")+
   theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
-  #scale_fill_discrete(name="Method")+
   scale_fill_manual(values = c("#00AFBB", "#E7B800"),name="Method")+
   ylim(c(1.4,1.6))
 
 gg2 <-all_data_est%>%
-  #filter(groups != "Genus only")%>%
   ggplot()+
   geom_boxplot(mapping=aes(x=as.factor(sim_group), y= as.numeric(mse), fill=as.factor(groups)))+
   theme_bw()+
@@ -1343,8 +1240,7 @@ gg2 <-all_data_est%>%
 ########
 load("/Volumes/kwakupa/idm_na10/sim_input_na.RData")
 inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha1)
-#inputs2 <- c(input_list_na[[2]]$parameters$detection$alpha1)
-#inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha1)
+
 inputs <- list(inputs1)
 true_est10 <- rep(inputs, each=60)
 load("/Volumes/kwakupa/idm_miss_na_10/sim_input_na.RData")
@@ -1352,10 +1248,6 @@ inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha1)
 inputs <- list(inputs1)
 true_est10_na <- rep(inputs, each=60)
 
-#inter_est_mbias_10 <- Map(mahalanobis_est, true_est10, inter_est10)
-#genus_est_mbias_10 <- Map(mahalanobis_est, true_est10, genus_est10)
-#species_est_mbias_10 <- Map(mahalanobis_est, true_est10, species_est10)
-#estimates_mbias10 <- c(inter_est_mbias_10,genus_est_mbias_10,species_est_mbias_10)
 subsetting_alpha1 <- function(x,n.species){
   lapply(x, function(y) y[(n.species+1):(n.species*2)])
 }
@@ -1370,19 +1262,12 @@ estimates_mse10 <- c(inter_est_mse_10,genus_est_mse_10,species_est_mse_10,
 
 load("/Volumes/kwakupa/idm_na20/sim_input_na20.RData")
 inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha1)
-#inputs2 <- c(input_list_na[[2]]$parameters$detection$alpha1)
-#inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha1)
 inputs <- list(inputs1)
 true_est20 <- rep(inputs, each=60)
 load("/Volumes/kwakupa/idm_miss_na20/sim_input_na.RData")
 inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha1)
 inputs <- list(inputs1)
 true_est20_na <- rep(inputs, each=60)
-
-#inter_est_mbias_20 <- Map(mahalanobis_est, true_est20, inter_est20)
-#genus_est_mbias_20 <- Map(mahalanobis_est, true_est20, genus_est20)
-#species_est_mbias_20 <- Map(mahalanobis_est, true_est20, species_est20)
-#estimates_mbias20 <- c(inter_est_mbias_20,genus_est_mbias_20,species_est_mbias_20)
 
 inter_est_mse_20 <- Map(mse, true_est20, subsetting_alpha1(inter_est20,20))
 genus_est_mse_20 <- Map(mse, true_est20, subsetting_alpha1(genus_est10,20))
@@ -1400,11 +1285,6 @@ inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha1)
 inputs <- list(inputs1, inputs2, inputs3)
 true_est30 <- rep(inputs, each=20)
 
-#inter_est_mbias_30 <- Map(mahalanobis_est , true_est30, inter_est30)
-#genus_est_mbias_30 <- Map(mahalanobis_est , true_est30, genus_est30)
-#species_est_mbias_30 <- Map(mahalanobis_est , true_est30, species_est30)
-#estimates_mbias30 <- c(inter_est_mbias_30,genus_est_mbias_30,species_est_mbias_30)
-
 inter_est_mse_30 <- Map(mse, true_est30, subsetting_alpha1(inter_est30,30))
 genus_est_mse_30 <- Map(mse, true_est30, subsetting_alpha1(genus_est30,30))
 species_est_mse_30 <- Map(mse, true_est30, subsetting_alpha1(species_est30,30))
@@ -1414,7 +1294,7 @@ species_est_mse_30_na <- Map(mse, true_est30, subsetting_alpha1(species_est30,30
 estimates_mse30 <- c(inter_est_mse_30,genus_est_mse_30,species_est_mse_30,
                      inter_est_mse_30_na,genus_est_mse_30_na,species_est_mse_30_na)
 
-#all_estimates_mbias <- c(estimates_mbias10,estimates_mbias20,estimates_mbias30)
+
 all_estimates_mse <- c(estimates_mse10,estimates_mse20,estimates_mse30)
 n_est <- 60 #Number of results for each inter etc. 
 n1 <- 180
@@ -1446,10 +1326,8 @@ gg4 <-all_data_est%>%
   ylab("")+
   xlab("")+
   theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
-  #scale_fill_discrete(name="Method")+
   scale_fill_manual(values = c("#00AFBB", "#E7B800"),name="Method")+
   ylim(c(0,5))
-#ggarrange(gg1,gg2, nrow=1, ncol=2, common.legend = TRUE, legend="bottom")
 
 ########
 # BETA0
@@ -1465,10 +1343,6 @@ inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta0)
 inputs <- list(inputs1)
 true_est10_na <- rep(inputs, each=60)
 
-#inter_est_mbias_10 <- Map(mahalanobis_est, true_est10, inter_est10)
-#genus_est_mbias_10 <- Map(mahalanobis_est, true_est10, genus_est10)
-#species_est_mbias_10 <- Map(mahalanobis_est, true_est10, species_est10)
-#estimates_mbias10 <- c(inter_est_mbias_10,genus_est_mbias_10,species_est_mbias_10)
 subsetting_beta0 <- function(x,n.species){
   lapply(x, function(y) y[((n.species*2)+1):(n.species*3)])
 }
@@ -1492,11 +1366,6 @@ inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta0)
 inputs <- list(inputs1)
 true_est20_na <- rep(inputs, each=60)
 
-#inter_est_mbias_20 <- Map(mahalanobis_est, true_est20, inter_est20)
-#genus_est_mbias_20 <- Map(mahalanobis_est, true_est20, genus_est20)
-#species_est_mbias_20 <- Map(mahalanobis_est, true_est20, species_est20)
-#estimates_mbias20 <- c(inter_est_mbias_20,genus_est_mbias_20,species_est_mbias_20)
-
 inter_est_mse_20 <- Map(mse, true_est20, subsetting_beta0(inter_est20,20))
 genus_est_mse_20 <- Map(mse, true_est20, subsetting_beta0(genus_est20,20))
 species_est_mse_20 <- Map(mse, true_est20, subsetting_beta0(species_est20,20))
@@ -1513,11 +1382,6 @@ inputs3 <- c(input_list_na[[3]]$parameters$ecological$beta0)
 inputs <- list(inputs1, inputs2, inputs3)
 true_est30 <- rep(inputs, each=20)
 
-#inter_est_mbias_30 <- Map(mahalanobis_est , true_est30, inter_est30)
-#genus_est_mbias_30 <- Map(mahalanobis_est , true_est30, genus_est30)
-#species_est_mbias_30 <- Map(mahalanobis_est , true_est30, species_est30)
-#estimates_mbias30 <- c(inter_est_mbias_30,genus_est_mbias_30,species_est_mbias_30)
-
 inter_est_mse_30 <- Map(mse, true_est30, subsetting_beta0(inter_est30,30))
 genus_est_mse_30 <- Map(mse, true_est30, subsetting_beta0(genus_est30,30))
 species_est_mse_30 <- Map(mse, true_est30, subsetting_beta0(species_est30,30))
@@ -1527,7 +1391,6 @@ species_est_mse_30_na <- Map(mse, true_est30, subsetting_beta0(species_est30,30)
 estimates_mse30 <- c(inter_est_mse_30,genus_est_mse_30,species_est_mse_30,
                      inter_est_mse_30_na,genus_est_mse_30_na,species_est_mse_30_na)
 
-#all_estimates_mbias <- c(estimates_mbias10,estimates_mbias20,estimates_mbias30)
 all_estimates_mse <- c(estimates_mse10,estimates_mse20,estimates_mse30)
 n_est <- 60 #Number of results for each inter etc. 
 n1 <- 180
@@ -1556,28 +1419,21 @@ gg6 <-ggplot(all_data_est)+
   ylab("")+
   xlab("")+
   theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
-  #scale_fill_discrete(name="Method")+
   scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
   ylim(c(0,5))
-#ggarrange(gg1,gg2, nrow=1, ncol=2, common.legend = TRUE, legend="bottom")
 
 ########
 # BETA1
 ########
 load("/Volumes/kwakupa/idm_na10/sim_input_na.RData")
 inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta1)
-#inputs2 <- c(input_list_na[[2]]$parameters$ecological$beta1)
-#inputs3 <- c(input_list_na[[3]]$parameters$ecological$beta1)
 inputs <- list(inputs1)
 true_est10 <- rep(inputs, each=60)
 load("/Volumes/kwakupa/idm_miss_na_10/sim_input_na.RData")
 inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta1)
 inputs <- list(inputs1)
 true_est10_na <- rep(inputs, each=60)
-#inter_est_mbias_10 <- Map(mahalanobis_est, true_est10, inter_est10)
-#genus_est_mbias_10 <- Map(mahalanobis_est, true_est10, genus_est10)
-#species_est_mbias_10 <- Map(mahalanobis_est, true_est10, species_est10)
-#estimates_mbias10 <- c(inter_est_mbias_10,genus_est_mbias_10,species_est_mbias_10)
+
 subsetting_beta1 <- function(x,n.species){
   lapply(x, function(y) y[((n.species*3)+1):(n.species*4)])
 }
@@ -1600,10 +1456,6 @@ load("/Volumes/kwakupa/idm_miss_na20/sim_input_na.RData")
 inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta0)
 inputs <- list(inputs1)
 true_est20_na <- rep(inputs, each=60)
-#inter_est_mbias_20 <- Map(mahalanobis_est, true_est20, inter_est20)
-#genus_est_mbias_20 <- Map(mahalanobis_est, true_est20, genus_est20)
-#species_est_mbias_20 <- Map(mahalanobis_est, true_est20, species_est20)
-#estimates_mbias20 <- c(inter_est_mbias_20,genus_est_mbias_20,species_est_mbias_20)
 
 inter_est_mse_20 <- Map(mse, true_est20, subsetting_beta1(inter_est20,20))
 genus_est_mse_20 <- Map(mse, true_est20, subsetting_beta1(genus_est20,20))
@@ -1621,11 +1473,6 @@ inputs3 <- c(input_list_na[[3]]$parameters$ecological$beta1)
 inputs <- list(inputs1, inputs2, inputs3)
 true_est30 <- rep(inputs, each=20)
 
-#inter_est_mbias_30 <- Map(mahalanobis_est , true_est30, inter_est30)
-#genus_est_mbias_30 <- Map(mahalanobis_est , true_est30, genus_est30)
-#species_est_mbias_30 <- Map(mahalanobis_est , true_est30, species_est30)
-#estimates_mbias30 <- c(inter_est_mbias_30,genus_est_mbias_30,species_est_mbias_30)
-
 inter_est_mse_30 <- Map(mse, true_est30, subsetting_beta1(inter_est30,30))
 genus_est_mse_30 <- Map(mse, true_est30, subsetting_beta1(genus_est30,30))
 species_est_mse_30 <- Map(mse, true_est30, subsetting_beta1(species_est30,30))
@@ -1635,7 +1482,7 @@ species_est_mse_30_na <- Map(mse, true_est30, subsetting_beta1(species_est30,30)
 estimates_mse30 <- c(inter_est_mse_30,genus_est_mse_30,species_est_mse_30,
                      inter_est_mse_30_na,genus_est_mse_30_na,species_est_mse_30_na)
 
-#all_estimates_mbias <- c(estimates_mbias10,estimates_mbias20,estimates_mbias30)
+
 all_estimates_mse <- c(estimates_mse10,estimates_mse20,estimates_mse30)
 n_est <- 60 #Number of results for each inter etc. 
 n1 <- 180
@@ -1654,7 +1501,6 @@ gg7 <-ggplot(all_data_est)+
   ylab("MD of beta1")+
   xlab("Number of species")+
   theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0.1))+
-  #scale_fill_discrete(name="Method")+
   scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
   ylim(c(1.4,1.6))
 
@@ -1664,7 +1510,6 @@ gg8 <-ggplot(all_data_est)+
   ylab("")+
   xlab("")+
   theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
- # scale_fill_discrete(name="Method")+
   scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
   ylim(c(0,5))
 ggarrange(gg2,gg4,gg6,gg8, nrow=2, ncol=2, common.legend = TRUE, legend="bottom")
@@ -1680,7 +1525,6 @@ ggarrange(gg_even_mse, gg_shan_mse, gg_aed_mse,
 ###################
 # All plots together
 ################
-#theme_update(text = element_text(size=10))
 figure <- ggarrange(gg2,gg4,gg6,gg8,gg_even_mse, gg_shan_mse, gg_aed_mse, nrow=2, ncol=4, common.legend = TRUE, legend="top",
                     labels = c("(a) ahpha0", "(b) alpha1",
                                "(c) beta0", "(d) beta1",
@@ -1688,9 +1532,7 @@ figure <- ggarrange(gg2,gg4,gg6,gg8,gg_even_mse, gg_shan_mse, gg_aed_mse, nrow=2
                     font.label=list(color="black",size=9), 
                     hjust = -1, vjust = -0.3)
 annotate_figure(figure,
-                #top = text_grob("Visualizing Tooth Growth", color = "red", face = "bold", size = 14),
                 bottom = text_grob("Number of species", 
                                    hjust = 1),
-                left = text_grob("Root Mean Square Error", rot = 90)#,
-               # right = text_grob(bquote("Superscript: ("*kg~NH[3]~ha^-1~yr^-1*")"), rot = 90)
+                left = text_grob("Root Mean Square Error", rot = 90)
 )

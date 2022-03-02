@@ -1,0 +1,1696 @@
+library(ggplot2)
+library(pbapply)
+library(reshape2)
+library(purrr)
+library(dplyr)
+library(gganimate)
+library(ggpubr)
+library(pbapply)
+library(ggplot2)
+source("fnx_for estimation.R")
+theme_update(text = element_text(size=20))
+
+###################
+# NO MISSING DATA
+###################
+
+#Read the data for the N.species = 10 data set
+load("/Volumes/kwakupa/idm_miss_na_10/estimate_inter_na.RData")
+load("/Volumes/kwakupa/idm_miss_na_10/estimate_genus_na.RData")
+load("/Volumes/kwakupa/idm_miss_na_10/estimate_species_na.RData")
+
+## IDM approach used
+# The pi's for the shannon index
+inter_prop10 <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+#estimates of parameters
+inter_est10<- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][101:140,2]}
+})
+
+## Genus only approach used
+# The pi's for the shannon index
+genus_prop10 <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+#Estimates of parameters
+genus_est10 <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][101:140,2]}
+})
+
+## Species only approach used
+# The pi's for the shannon index
+species_est10 <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][101:140,2]}
+})
+
+#Estimate of parameters
+species_prop10 <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+
+#Retrieving the median of the pi's for the three approaches
+# The posterior is skewed seem to be skewed.
+inter_med10 <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][141:890,2], nrow=75,ncol=10, byrow=F)}
+})
+
+species_med10 <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][141:890,2], nrow=75,ncol=10, byrow=F)}
+})
+
+genus_med10 <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][141:890,2], nrow=75,ncol=10, byrow=F)}
+})
+
+
+#The exponent for the Hills index
+q <- as.list(seq(0,0.9,0.1 ))
+
+#Estimating the Hills index for the three approaches
+hills_inter10<- pblapply(inter_med10, function(x){
+    pblapply(q, function(z){
+      if(!is.null(x)){
+      data <- hill_index(z, x)
+      }
+    }, cl=1)
+  }, cl=1)
+
+hills_genus10<- pblapply(genus_med10, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_species10<- pblapply(species_med10, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+
+#Loading data for N.species =20
+load("/Volumes/kwakupa/idm_miss_na20/estimate_inter_na.RData")
+load("/Volumes/kwakupa/idm_miss_na20/estimate_genus_na.RData")
+load("/Volumes/kwakupa/idm_miss_na20/estimate_species_na.RData")
+
+##IDM approached used
+# Pi's
+inter_prop20 <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+#parameters
+inter_est20<- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][401:480,2]}
+})
+
+
+#Genus only approach
+#pi's
+genus_prop20 <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+#parameters
+genus_est20 <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][401:480,2]}
+})
+
+#Species only 
+#parameters
+species_est20 <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][401:480,2]}
+})
+
+#pi's
+species_prop20 <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+
+#Retreiving the median of the estimates
+inter_med20 <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][481:1980,2], nrow=75,ncol=20, byrow=F)}
+})
+
+species_med20 <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][481:1980,2], nrow=75,ncol=20, byrow=F)}
+})
+
+genus_med20 <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][481:1980,2], nrow=75,ncol=20, byrow=F)}
+})
+
+
+q <- as.list(seq(0,0.9,0.1 ))
+
+
+library(pbapply)
+
+hills_inter20<- pblapply(inter_med20, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_genus20<- pblapply(genus_med20, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_species20<- pblapply(species_med20, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+#30 species
+#load("/Volumes/kwakupa/idm_miss_na_30/estimate_genus_na.RData")
+#load("/Volumes/kwakupa/idm_miss_na_30/estimate_inter_na.RData")
+#load("/Volumes/kwakupa/idm_miss_na_30/estimate_species_na.RData")
+load("/Volumes/kwakupa/idm_na30/estimate_inter_na30.RData")
+load("/Volumes/kwakupa/idm_na30/estimate_species_na30.RData")
+load("/Volumes/kwakupa/idm_na30/estimate_genus_na.RData")
+
+
+inter_prop30 <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+inter_med30 <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][1021:3270,2], nrow=75,ncol=30, byrow=F)}
+})
+inter_est30 <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][901:1020,2]}
+})
+
+genus_prop30 <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+
+genus_est30 <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][901:1020,2]}
+})
+genus_med30 <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][1021:3270,2], nrow=75,ncol=30, byrow=F)}
+})
+
+species_est30 <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][901:1020,2]}
+})
+
+species_prop30 <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+species_med30 <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][1021:3270,2], nrow=75,ncol=30, byrow=F)}
+})
+
+q <- as.list(seq(0,0.9,0.1))
+
+library(pbapply)
+
+hills_inter30<- pblapply(inter_med30, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_genus30 <- pblapply(genus_med30, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_species30 <- pblapply(species_med30, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+###################
+# MISSING IDs
+###################
+
+#Read the data for the N.species = 10 data set
+#load("/Volumes/kwakupa/idm_na10/estimate_inter_na.RData")
+load("/Volumes/kwakupa/idm_na10/estimate_genus_na.RData")
+load("/Volumes/kwakupa/idm_na10/estimate_species_na.RData")
+load("/Volumes/kwakupa/idm_miss_na_10/estimate_inter_na.RData")
+
+## IDM approach used
+# The pi's for the shannon index
+inter_prop10_na <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+#estimates of parameters
+inter_est10_na<- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][101:140,2]}
+})
+
+## Genus only approach used
+# The pi's for the shannon index
+genus_prop10_na <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+#Estimates of parameters
+genus_est10_na <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][101:140,2]}
+})
+
+## Species only approach used
+# The pi's for the shannon index
+species_est10_na <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][101:140,2]}
+})
+
+#Estimate of parameters
+species_prop10_na <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+
+#Retrieving the median of the pi's for the three approaches
+# The posterior is skewed seem to be skewed.
+inter_med10_na <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][141:890,2], nrow=75,ncol=10, byrow=F)}
+})
+
+species_med10_na <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][141:890,2], nrow=75,ncol=10, byrow=F)}
+})
+
+genus_med10_na <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][141:890,2], nrow=75,ncol=10, byrow=F)}
+})
+
+
+#The exponent for the Hills index
+q <- as.list(seq(0,0.9,0.1 ))
+
+#Estimating the Hills index for the three approaches
+hills_inter10_na<- pblapply(inter_med10, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_genus10_na<- pblapply(genus_med10, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_species10_na<- pblapply(species_med10, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+
+#Loading data for N.species =20
+load("/Volumes/kwakupa/idm_na20/estimate_inter_na.RData")
+load("/Volumes/kwakupa/idm_na20/estimate_genus_na.RData")
+load("/Volumes/kwakupa/idm_na20/estimate_species_na.RData")
+
+##IDM approached used
+# Pi's
+inter_prop20_na <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+#parameters
+inter_est20_na<- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][401:480,2]}
+})
+
+
+#Genus only approach
+#pi's
+genus_prop20_na <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+#parameters
+genus_est20_na <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][401:480,2]}
+})
+
+#Species only 
+#parameters
+species_est20_na <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][401:480,2]}
+})
+
+#pi's
+species_prop20_na <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+
+#Retreiving the median of the estimates
+inter_med20_na <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][481:1980,2], nrow=75,ncol=20, byrow=F)}
+})
+
+species_med20_na <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][481:1980,2], nrow=75,ncol=20, byrow=F)}
+})
+
+genus_med20_na <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][481:1980,2], nrow=75,ncol=20, byrow=F)}
+})
+
+
+q <- as.list(seq(0,0.9,0.1 ))
+
+
+library(pbapply)
+
+hills_inter20_na<- pblapply(inter_med20_na, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_genus20_na <- pblapply(genus_med20_na, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_species20_na <- pblapply(species_med20_na, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+#30 species
+load("/Volumes/kwakupa/idm_na30/estimate_inter_na30.RData")
+load("/Volumes/kwakupa/idm_na30/estimate_species_na30.RData")
+load("/Volumes/kwakupa/idm_na30/estimate_genus_na.RData")
+
+inter_prop30_na <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+inter_med30_na <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][1021:3270,2], nrow=75,ncol=30, byrow=F)}
+})
+inter_est30_na <- lapply(inter_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][901:1020,2]}
+})
+
+genus_prop30_na <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+genus_est30_na <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][901:1020,2]}
+})
+
+genus_med30_na <- lapply(genus_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][1021:3270,2], nrow=75,ncol=30, byrow=F)}
+})
+
+species_est30_na <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[3]][901:1020,2]}
+})
+
+species_prop30_na <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){x[[1]]}
+})
+
+species_med30_na <- lapply(species_estimates_na, function(x){
+  if(class(x)!= "try-error"){matrix(x[[3]][1021:3270,2], nrow=75,ncol=30, byrow=F)}
+})
+
+q <- as.list(seq(0,0.9,0.1))
+
+library(pbapply)
+
+hills_inter30_na <- pblapply(inter_med30_na, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_genus30_na <- pblapply(genus_med30_na, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_species30_na <- pblapply(species_med30_na, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+####################
+# TRUE VALUES
+####################
+
+# True estimates of hills numbers
+load("/Volumes/kwakupa/idm_miss_na_10/sim_interractions_na.RData")
+true_sim_10 <- simulations_all_na
+load("/Volumes/kwakupa/idm_miss_na20/sim_interractions_na.RData")
+true_sim_20 <- simulations_all_na
+load("/Volumes/kwakupa/idm_miss_na_30/sim_interractions_na.RData")
+true_sim_30 <- simulations_all_na
+load("/Volumes/kwakupa/idm_na10/sim_interractions_na.RData")
+true_sim_10_na <- simulations_all_na
+load("/Volumes/kwakupa/idm_na20/sim_interractions_na.RData")
+true_sim_20_na <- simulations_all_na
+load("/Volumes/kwakupa/idm_na30/sim_interractions_na.RData")
+true_sim_30_na <- simulations_all_na
+
+true_sim_prop10 <- lapply(true_sim_10, function(x){
+  if(class(x)!= "try-error"){x[[3]]}
+})
+
+true_sim_prop20 <- lapply(true_sim_20, function(x){
+  if(class(x)!= "try-error"){x[[3]]}
+})
+
+true_sim_prop30 <- lapply(true_sim_30, function(x){
+  if(class(x)!= "try-error"){x[[3]]}
+})
+
+true_sim_prop10_na <- lapply(true_sim_10_na, function(x){
+  if(class(x)!= "try-error"){x[[3]]}
+})
+
+true_sim_prop20_na <- lapply(true_sim_20_na, function(x){
+  if(class(x)!= "try-error"){x[[3]]}
+})
+
+true_sim_prop30_na <- lapply(true_sim_30_na, function(x){
+  if(class(x)!= "try-error"){x[[3]]}
+})
+
+#Estimating hills numbers
+hills_true_sim10<- pblapply(true_sim_prop10, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_true_sim20<- pblapply(true_sim_prop20, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_true_sim30<- pblapply(true_sim_prop30, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_true_sim10_na <- pblapply(true_sim_prop10_na, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_true_sim20_na<- pblapply(true_sim_prop20_na, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+hills_true_sim30_na <- pblapply(true_sim_prop30_na, function(x){
+  pblapply(q, function(z){
+    if(!is.null(x)){
+      data <- hill_index(z, x)
+    }
+  }, cl=1)
+}, cl=1)
+
+#Function to put the data togehter
+data_melt1 <- function(hills_inter){
+  data_new_inter <-  list()
+  for(j in 1: length(hills_inter)){
+    data_inter <- matrix(NA, nrow=75, ncol=length(q))
+    for(i in 1:length(q)){
+      if(is.null(hills_inter[[j]][[i]])){
+        data_inter[,i] <- rep(NA, 75)
+      }else{
+        data_inter[,i] <- hills_inter[[j]][[i]]
+      }
+    }
+    data_inter <- cbind(site=seq(1:75),as.data.frame(data_inter))
+    data_new_inter[[j]] <- melt(data_inter, id.vars = c("site"))
+  }
+  return(data_new_inter)
+}
+
+true_hills_10 <- data_melt1(hills_true_sim10)
+dd_10 <- do.call("rbind", true_hills_10)%>%
+  dplyr::group_by(site, variable)%>%
+  dplyr::mutate(med_value = median(value))
+
+true_hills_20 <- data_melt1(hills_true_sim20)
+dd_20 <- do.call("rbind", true_hills_20)%>%
+  dplyr::group_by(site, variable)%>%
+  dplyr::mutate(med_value = median(value))
+
+true_hills_30 <- data_melt1(hills_true_sim30)
+dd_30 <- do.call("rbind", true_hills_30)%>%
+  dplyr::group_by(site, variable)%>%
+  dplyr::mutate(med_value = median(value))
+
+true_hills_10_na <- data_melt1(hills_true_sim10_na)
+dd_10_na <- do.call("rbind", true_hills_10_na)%>%
+  dplyr::group_by(site, variable)%>%
+  dplyr::mutate(med_value = median(value))
+
+true_hills_20_na <- data_melt1(hills_true_sim20_na)
+dd_20_na <- do.call("rbind", true_hills_20_na)%>%
+  dplyr::group_by(site, variable)%>%
+  dplyr::mutate(med_value = median(value))
+
+true_hills_30_na <- data_melt1(hills_true_sim30_na)
+dd_30_na <- do.call("rbind", true_hills_30)%>%
+  dplyr::group_by(site, variable)%>%
+  dplyr::mutate(med_value = median(value))
+
+#Comnbining the two number of species
+hills_inter <- c(hills_inter10, hills_inter20, hills_inter30,
+                 hills_inter10_na, hills_inter20_na, hills_inter30_na)
+hills_species <- c(hills_species10, hills_species20, hills_species30,
+                   hills_species10_na, hills_species20_na, hills_species30_na)
+hills_genus <- c(hills_genus10, hills_genus20, hills_genus30,
+                 hills_genus10_na, hills_genus20_na, hills_genus30_na)
+
+data_melt <- function(hills_inter, hills_species, hills_genus){
+  data_new_inter <- data_new_species <- data_new_genus <- list()
+  for(j in 1: length(hills_inter)){
+data_inter <- data_species <-data_genus <- matrix(NA, nrow=75, ncol=length(q))
+for(i in 1:length(q)){
+  if(is.null(hills_inter[[j]][[i]])){
+    data_inter[,i] <- rep(NA, 75)
+}else{
+  data_inter[,i] <- hills_inter[[j]][[i]]
+}
+}
+#Species
+for(i in 1:length(q)){
+  if(is.null(hills_species[[j]][[i]])){
+    data_species[,i] <- rep(NA, 75)
+  }else{
+    data_species[,i] <- hills_species[[j]][[i]]
+  }
+}
+
+#genus
+for(i in 1:length(q)){
+  if(is.null(hills_genus[[j]][[i]])){
+    data_genus[,i] <- rep(NA, 75)
+  }else{
+    data_genus[,i] <- hills_genus[[j]][[i]]
+  }
+}
+
+
+data_inter <- cbind(site=seq(1:75),as.data.frame(data_inter))
+data_species <- cbind(site=seq(1:75),as.data.frame(data_species))
+data_genus <- cbind(site=seq(1:75),as.data.frame(data_genus))
+
+
+data_new_inter[[j]] <- melt(data_inter, id.vars = c("site"))
+data_new_species[[j]] <- melt(data_species, id.vars = c("site"))
+data_new_genus[[j]] <- melt(data_genus, id.vars = c("site"))
+ #gg[[j]] <- ggplot(data = data_new)+
+  #geom_line(aes(x, value, col=variable))
+  }
+  return(list(data_new_inter, data_new_species, data_new_genus))
+}
+
+
+
+data <- data_melt(hills_inter, hills_species, hills_genus)
+data_flat <- flatten(data)
+n <- (length(data_flat)/3)*75*length(q) #Each group has 180 simulated results with 75 sites and q hills exponents
+n1 <- 60 * 75*length(q) #The numbers for each group
+groups <- c(rep("IDM",n ), rep("Species Only",n ),rep("Genus only",n ))
+sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP=20", n1),rep("N.SP=30", n1),
+               rep("N.SP= 10 (MI)", n1), rep("N.SP= 20 (MI)", n1),rep("N.SP= 30 (MI)", n1)),3)
+#sim_group <- rep(c(rep("sim1", 15000), rep("sim2", 15000), rep("sim3", 15000)),2)
+all_data <- cbind(do.call("rbind", data_flat), groups=groups, sim_group=sim_group)
+#all_data <- data_flat %>% reduce(bind_rows)
+#all_data%>%
+ # filter(x==1)%>%
+
+#ggplot(all_data)+
+ # geom_boxplot(mapping = aes(x=variable, y=value, fill=groups,col=as.factor(sim_group)))+
+ # transition_states(states=site,
+  #                  transition_length = 75)#,
+                   # state_length = 1,
+                    #wrap=FALSE
+                   #)#+
+  #labs(title = "Site: {frame_time}")
+all_data1 <- all_data%>%
+  filter(site==10)
+
+all_data_true_10 <- dd_10%>%
+  filter(site<=1)
+
+all_data_true_20 <- dd_20%>%
+  filter(site<=1)
+
+all_data_true_30 <- dd_30%>%
+  filter(site<=1)
+
+ggplot()+
+  geom_boxplot(all_data1,mapping = aes(x=variable, y=value, fill=groups))+#,col=as.factor(sim_group)
+  #geom_boxplot(data=all_data_true_10,mapping=aes(x=variable, y= med_value))+
+ # geom_boxplot(data=all_data_true_20,mapping=aes(x=variable, y= med_value))+
+  #geom_boxplot(data=all_data_true_30,mapping=aes(x=variable, y= med_value))+
+  theme_bw()+
+  ylab("Hill's numbers")+
+  xlab("q")+
+  theme(legend.position = c(0.95,1))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+  scale_x_discrete(labels=c("0","0.1","0.2",
+                            "0.3","0.4","0.5",
+                            "0.6","0.7","0.8","0.9"))+
+  facet_wrap( ~site+sim_group, ncol=3)
+# transition_states(states=site,
+#                  transition_length = 75)#,
+# state_length = 1,
+#wrap=FALSE
+#)#+
+#labs(title = "Site: {frame_time}")
+
+
+#inter_prop <- c(inter_prop10,inter_prop20,inter_prop30,
+                #inter_prop10_na,inter_prop20_na,inter_prop30_na)
+#genus_prop <- c(genus_prop10,genus_prop20,genus_prop30,
+                #genus_prop10_na,genus_prop20_na,genus_prop30_na)
+#species_prop <- c(species_prop10,species_prop20,species_prop30,
+                 # species_prop10_na,species_prop20_na,species_prop30_na)
+
+
+#Extracting the proportions
+true_sim <- c(true_sim_prop10 ,true_sim_prop20 ,true_sim_prop30,
+              true_sim_prop10_na ,true_sim_prop20_na ,true_sim_prop30_na)
+
+
+inter_prop <- c(inter_med10, inter_med20, inter_med30,inter_med10_na, inter_med20_na, inter_med30_na) #NB: med if for the median and the prop is for the mean
+genus_prop <- c(genus_med10, genus_med20, genus_med30,genus_med10_na, genus_med20_na, genus_med30_na)
+species_prop <- c(species_med10, species_med20, species_med30,species_med10_na, species_med20_na, species_med30_na)
+
+#################
+# AED
+################
+aed_inter<- pblapply(inter_prop, function(x){
+  if(!is.null(x)){
+    data <- aed( x)
+  }
+}, cl=1)
+
+aed_genus<- pblapply(genus_prop, function(x){
+  if(!is.null(x)){
+    data <- aed(x)
+  }
+}, cl=1)
+
+aed_species<- pblapply(species_prop, function(x){
+  if(!is.null(x)){
+    data <- aed(x)
+  }
+}, cl=1)
+
+#AED of the true values
+aed_true <-pblapply(true_sim, function(x){
+  if(!is.null(x)){
+    data <- aed(x)
+  }
+}, cl=1)
+
+data <- data_melt(aed_inter, aed_species, aed_genus)
+data_flat <- flatten(data)
+n <- (60*6)*75
+n1 <- (60)*75
+groups <- c(rep("IDM",n ), rep("Species only",n ),rep("Genus only",n ))
+sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP=20", n1),rep("N.SP=30", n1),
+                   rep("N.SP= 10 (MI)", n1), rep("N.SP= 20 (MI)", n1),rep("N.SP= 30 (MI)", n1)),3) #Two by three groups
+all_data1 <- cbind(do.call("rbind", data_flat), groups=groups, sim_group=sim_group)
+all_data1%>%
+  filter(site <= 4)%>%
+  ggplot()+
+  geom_boxplot(mapping = aes(x=as.factor(sim_group), y=as.numeric(value), fill=as.factor(groups)))+
+  theme_bw()+
+  ylab("AED Index")+
+  xlab("Number of species")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+  facet_wrap(~as.factor(site))
+
+#################################
+# Shannon index and eveness
+##################################
+###Shannon index and eveness
+shannon_inter<- pblapply(inter_prop, function(x){
+    if(!is.null(x)){
+      data <- shan_index( x)
+    }
+}, cl=1)
+
+shannon_genus<- pblapply(genus_prop, function(x){
+    if(!is.null(x)){
+      data <- shan_index(x)
+    }
+}, cl=1)
+
+shannon_species<- pblapply(species_prop, function(x){
+    if(!is.null(x)){
+      data <- shan_index(x)
+    }
+  }, cl=1)
+
+
+data_melt <- function(hills_inter11, hills_species11, hills_genus11){
+  data_new_inter <- data_new_species <- data_new_genus <- list()
+  for(j in 1: length(hills_inter11)){
+    data_inter <- data_species <-data_genus <- vector("numeric", length=75)
+
+      if(is.null(hills_inter11[[j]])){
+        data_inter <- rep(NA, 75)
+      }else{
+        data_inter<- hills_inter11[[j]]
+      }
+
+    #Species
+      if(is.null(hills_species11[[j]])){
+        data_species <- rep(NA, 75)
+      }else{
+        data_species <- hills_species11[[j]]
+      }
+
+    
+    #genus
+      if(is.null(hills_genus11[[j]])){
+        data_genus <- rep(NA, 75)
+      }else{
+        data_genus<- hills_genus11[[j]]
+      }
+    
+    
+    data_inter1 <- data.frame(site=seq(1:75),value=data_inter)
+    data_species1 <- data.frame(site=seq(1:75),value=data_species)
+    data_genus1 <- data.frame(site=seq(1:75),value=data_genus)
+    
+    
+    data_new_inter[[j]] <- data_inter1
+    data_new_species[[j]] <- data_species1
+    data_new_genus[[j]] <- data_genus1
+    #gg[[j]] <- ggplot(data = data_new)+
+    #geom_line(aes(x, value, col=variable))
+  }
+  return(list(data_new_inter, data_new_species, data_new_genus))
+}
+
+#Shannon index
+data <- data_melt(shannon_inter, shannon_species, shannon_genus)
+data_flat <- flatten(data)
+n <- (60*6)*75
+n1 <- (60)*75
+groups <- c(rep("IDM",n ), rep("Species only",n ),rep("Genus only",n ))
+sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP=20", n1),rep("N.SP=30", n1),
+                   rep("N.SP= 10 (MI)", n1), rep("N.SP= 20 (MI)", n1),rep("N.SP= 30 (MI)", n1)),3) #Two by three groups
+#sim_group <- rep(c(rep("sim1", n1), rep("sim2", n1), rep("sim3", n1)),6) #Two by three groups
+all_data1 <- cbind(do.call("rbind", data_flat), groups=groups, sim_group=sim_group)
+
+
+#ggplot(all_data)+
+#  geom_boxplot(mapping = aes(x=as.factor(site), y=value, fill=groups,col=as.factor(groups)))+
+#  transition_states(states=sim_group,
+#                    transition_length = 3
+#  )
+
+all_data1%>%
+  filter(site <= 4)%>%
+  ggplot()+
+  geom_boxplot(mapping = aes(x=as.factor(sim_group), y=as.numeric(value), fill=as.factor(groups)))+
+  theme_bw()+
+  ylab("H'")+
+  xlab("Number of species")+
+  theme(legend.position = "right",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+    #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+  facet_wrap(~as.factor(site))
+
+
+
+### Eveness
+
+eveness_inter<- pblapply(inter_prop, function(x){
+  if(!is.null(x)){
+    data <- eveness(x)
+  }
+}, cl=1)
+
+
+eveness_genus<- pblapply(genus_prop, function(x){
+  if(!is.null(x)){
+    data <- eveness(x)
+  }
+}, cl=1)
+
+
+eveness_species<- pblapply(species_prop, function(x){
+  if(!is.null(x)){
+    data <- eveness(x)
+  }
+}, cl=1)
+
+data_melt <- function(hills_inter, hills_species, hills_genus){
+  data_new_inter <- data_new_species <- data_new_genus <- list()
+  for(j in 1: length(hills_inter)){
+    data_inter <- data_species <-data_genus <- vector("numeric", length=75)
+    
+    if(is.null(hills_inter[[j]])){
+      data_inter <- rep(NA, 75)
+    }else{
+      data_inter<- hills_inter[[j]]
+    }
+    
+    #Species
+    if(is.null(hills_species[[j]])){
+      data_species <- rep(NA, 75)
+    }else{
+      data_species <- hills_species[[j]]
+    }
+    
+    
+    #genus
+    if(is.null(hills_genus[[j]])){
+      data_genus <- rep(NA, 75)
+    }else{
+      data_genus<- hills_genus[[j]]
+    }
+    
+    
+    data_inter <- data.frame(site=seq(1:75),value=data_inter)
+    data_species <- data.frame(site=seq(1:75),value=data_species)
+    data_genus <- data.frame(site=seq(1:75),value=data_genus)
+    
+    
+    data_new_inter[[j]] <- data_inter
+    data_new_species[[j]] <- data_species
+    data_new_genus[[j]] <- data_genus
+    #gg[[j]] <- ggplot(data = data_new)+
+    #geom_line(aes(x, value, col=variable))
+  }
+  return(list(data_new_inter, data_new_species, data_new_genus))
+}
+
+
+data <- data_melt(eveness_inter,eveness_species, eveness_genus)
+data_flat <- flatten(data)
+n <- (60*6)*75
+n1 <- (60)*75
+groups <- c(rep("IDM",n ), rep("Species only",n ),rep("Genus only",n ))
+sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP=20", n1),rep("N.SP=30", n1),
+                   rep("N.SP= 10 (MI)", n1), rep("N.SP= 20 (MI)", n1),rep("N.SP= 30 (MI)", n1)),3) #Two by three groups
+#sim_group <- rep(c(rep("sim1", 1500), rep("sim2", 1500), rep("sim3", 1500)),3)
+all_data <- cbind(do.call("rbind", data_flat), groups=groups, sim_group=sim_group)
+
+
+#ggplot(all_data)+
+#  geom_boxplot(mapping = aes(x=as.factor(site), y=value, fill=groups,col=as.factor(groups)))+
+#  transition_states(states=sim_group,
+#                    transition_length = 3
+#  )
+all_data%>%
+  filter(site <= 4)%>%
+ggplot()+
+ geom_boxplot(mapping = aes(x=as.factor(sim_group), y=value, fill=groups))+
+  theme_bw()+
+  ylab("Eveness")+
+  xlab("Number of species")+
+  ylim(c(0,1))+
+  theme(legend.position = "right",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+  facet_wrap(~site, nrow = 2)
+
+############################
+#   MSE and MBIAS
+#########################
+
+data_mse <- function(hills_inter1, hills_species1, hills_genus1,true_est){
+  data_new_inter <- data_new_species <- data_new_genus <- list()
+  for(j in 1: length(hills_inter1)){
+    data_inter <- data_species <-data_genus <- vector("numeric", length=75)
+    
+    if(is.null(hills_inter1[[j]])){
+      data_inter <- rep(NA, 75)
+    }else{
+      data_inter<- hills_inter1[[j]]
+    }
+    
+    #Species
+    if(is.null(hills_species1[[j]])){
+      data_species <- rep(NA, 75)
+    }else{
+      data_species <- hills_species1[[j]]
+    }
+    
+    
+    #genus
+    if(is.null(hills_genus1[[j]])){
+      data_genus <- rep(NA, 75)
+    }else{
+      data_genus<- hills_genus1[[j]]
+    }
+    
+    
+    #data_inter <- data.frame(site=seq(1:75),value=data_inter)
+    #data_species <- data.frame(site=seq(1:75),value=data_species)
+    #data_genus <- data.frame(site=seq(1:75),value=data_genus)
+    
+    
+    data_new_inter[[j]] <- mse(true_est[[j]],data_inter)
+    data_new_species[[j]] <- mse(true_est[[j]],data_species)
+    data_new_genus[[j]] <- mse(true_est[[j]],data_genus)
+    #gg[[j]] <- ggplot(data = data_new)+
+    #geom_line(aes(x, value, col=variable))
+  }
+  return(list(data_new_inter, data_new_species, data_new_genus))
+}
+
+data_bias <- function(hills_inter1, hills_species1, hills_genus1,true_est){
+  data_new_inter1 <- data_new_species1 <- data_new_genus1 <- list()
+  for(j in 1: length(hills_inter1)){
+    data_inter <- data_species <-data_genus <- vector("numeric", length=75)
+    
+    if(is.null(hills_inter1[[j]])){
+      data_inter <- rep(NA, 75)
+    }else{
+      data_inter<- hills_inter1[[j]]
+    }
+    
+    #Species
+    if(is.null(hills_species1[[j]])){
+      data_species <- rep(NA, 75)
+    }else{
+      data_species <- hills_species1[[j]]
+    }
+    
+    
+    #genus
+    if(is.null(hills_genus1[[j]])){
+      data_genus <- rep(NA, 75)
+    }else{
+      data_genus<- hills_genus1[[j]]
+    }
+    
+    
+    #data_inter <- data.frame(site=seq(1:75),value=data_inter)
+    #data_species <- data.frame(site=seq(1:75),value=data_species)
+    #data_genus <- data.frame(site=seq(1:75),value=data_genus)
+    
+    
+    data_new_inter1[[j]] <- mahalanobis_est (true_est[[j]],data_inter)
+    data_new_species1[[j]] <- mahalanobis_est (true_est[[j]],data_species)
+    data_new_genus1[[j]] <- mahalanobis_est (true_est[[j]],data_genus)
+    #gg[[j]] <- ggplot(data = data_new)+
+    #geom_line(aes(x, value, col=variable))
+  }
+  return(list(data_new_inter1, data_new_species1, data_new_genus1))
+}
+
+
+#reading in of data
+load("/Volumes/kwakupa/idm_miss_na_10/sim_interractions_na.RData")
+simulations_all_10 <- simulations_all_na
+load("/Volumes/kwakupa/idm_miss_na20/sim_interractions_na.RData")
+simulations_all_20 <- simulations_all_na
+load("/Volumes/kwakupa/idm_miss_na_30/sim_interractions_na.RData")
+simulations_all_30 <- simulations_all_na
+simulations_all <- rep(c(simulations_all_10, simulations_all_20, simulations_all_30),2)
+
+true_shan <-pblapply(simulations_all, function(x){
+  if(!is.null(x)){
+    data <- shan_index( x[[3]])
+  }
+}, cl=1)
+
+true_even <- pblapply(simulations_all, function(x){
+  if(!is.null(x)){
+    data <- eveness( x[[3]])
+  }
+}, cl=1)
+
+true_aed <- pblapply(simulations_all, function(x){
+  if(!is.null(x)){
+    data <- aed( x[[3]])
+  }
+}, cl=1)
+
+#Estimates of MSE and Mbias
+shannon_MSE <- data_mse(shannon_inter, shannon_species, shannon_genus, true_shan)%>%
+  flatten()%>%
+  unlist()
+eveness_MSE <- data_mse(eveness_inter, eveness_species, eveness_genus, true_even)%>%
+  flatten()%>%
+  unlist()
+aed_MSE <- data_mse(aed_inter, aed_species, aed_genus, true_aed)%>%
+  flatten()%>%
+  unlist()
+shannon_bias <- data_bias(shannon_inter, shannon_species, shannon_genus, true_shan)%>%
+  flatten()%>%
+  unlist()
+eveness_bias <- data_bias(eveness_inter, eveness_species, eveness_genus, true_even)%>%
+  flatten()%>%
+  unlist()
+aed_bias <- data_bias(aed_inter, aed_species, aed_genus, true_aed)%>%
+  flatten()%>%
+  unlist()
+
+n <- 60*6 #Number in each group
+n1 <- 60
+groups <- c(rep("IDM",n ), rep("Species only",n ),rep("Genus only",n ))
+sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP=20", n1),rep("N.SP=30", n1),
+                   rep("N.SP= 10 (MI)", n1), rep("N.SP= 20 (MI)", n1),rep("N.SP= 30 (MI)", n1)),3)
+#sim_group <- rep(c(rep("sim1", 20), rep("sim2", 20), rep("sim3", 20)),3)
+est_data <- data.frame(groups, sim_group, shannon_MSE, eveness_MSE, aed_MSE, shannon_bias, eveness_bias)
+
+est_data_melt <-est_data%>%
+  select(groups,sim_group, shannon_MSE, eveness_MSE, aed_MSE)#%>%
+  #melt(id.vars=c("groups", "sim_group"))
+
+
+gg_shan_mse <- ggplot(est_data_melt)+
+  geom_boxplot(aes(x=sim_group, y=shannon_MSE, fill=groups))+
+  theme_bw()+
+  ylab("")+
+  xlab("")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")
+
+
+gg_even_mse <- ggplot(est_data_melt)+
+  geom_boxplot(aes(x=sim_group, y=eveness_MSE, fill=groups))+
+  theme_bw()+
+  ylab("")+
+  xlab("")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+  ylim(c(0,1))
+
+gg_aed_mse <- ggplot(est_data_melt)+
+  geom_boxplot(aes(x=sim_group, y=aed_MSE, fill=groups))+
+  theme_bw()+
+  ylab("")+
+  xlab("")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")
+
+#est_data_melt1 <-est_data%>%
+ # select(groups,sim_group, shannon_bias, eveness_bias)#%>%
+  #melt(id.vars=c("groups", "sim_group"))
+
+#gg_shan_bias <- ggplot(est_data_melt1)+
+ # geom_boxplot(aes(x=sim_group, y=shannon_bias, fill=groups))+
+ # ylab("Bias")+
+#  xlab("Number of species")+
+#  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+ # scale_fill_discrete(name="Method")+
+ # scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+#  theme_bw()
+
+#gg_eveness_bias <- ggplot(est_data_melt1)+
+ # geom_boxplot(aes(x=sim_group, y=eveness_bias, fill=groups))+
+ # ylab("Bias")+
+ # xlab("Number of species")+
+ # theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  #scale_fill_discrete(name="Method")+
+ # scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+ # theme_bw()#+
+  #ylim(0,1)
+
+ggarrange(gg_even_mse, gg_shan_mse, gg_aed_mse,
+          ncol=3, 
+          nrow = 1, 
+          common.legend = TRUE, 
+          legend = "bottom",
+          labels = c("(a) RMSE of eveness", "(b) RMSE of H'", "(c) RMSE of AED"))
+
+
+
+##################
+# Estimation of Mahalanobis distance
+##################
+
+
+
+
+
+
+
+
+
+
+
+#####################################################
+#   Estimates
+####################################################
+#load("data_idm.RData")
+#load("estimate_genus_data.RData")
+#load("estimate_inter_data.RData")
+#load("estimate_species_data.RData")
+########
+# ALPHA 0
+########
+load("/Volumes/kwakupa/idm_na10/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha0)
+#inputs2 <- c(input_list_na[[2]]$parameters$detection$alpha0)
+#inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha0)
+inputs <- list(inputs1)
+true_est10 <- rep(inputs, each=60)
+load("/Volumes/kwakupa/idm_miss_na_10/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha0)
+inputs <- list(inputs1)
+true_est10_na <- rep(inputs, each=60)
+
+#inter_est_mbias_10 <- Map(mahalanobis_est, true_est10, inter_est10)
+#genus_est_mbias_10 <- Map(mahalanobis_est, true_est10, genus_est10)
+#species_est_mbias_10 <- Map(mahalanobis_est, true_est10, species_est10)
+#estimates_mbias10 <- c(inter_est_mbias_10,genus_est_mbias_10,species_est_mbias_10)
+subsetting_alpha0 <- function(x,n.species){
+  lapply(x, function(y) y[(n.species+1):(n.species*2)])
+}
+inter_est_mse_10 <- Map(mse, true_est10, subsetting_alpha0(inter_est10,10))
+genus_est_mse_10 <- Map(mse, true_est10, subsetting_alpha0(genus_est10,10))
+species_est_mse_10 <- Map(mse, true_est10, subsetting_alpha0(species_est10,10))
+inter_est_mse_10_na <- Map(mse, true_est10_na, subsetting_alpha0(inter_est10_na,10))
+genus_est_mse_10_na <- Map(mse, true_est10_na, subsetting_alpha0(genus_est10, 10))
+species_est_mse_10_na <- Map(mse, true_est10_na, subsetting_alpha0(species_est10,10))
+estimates_mse10 <- c(inter_est_mse_10,genus_est_mse_10,species_est_mse_10,
+                     inter_est_mse_10_na, genus_est_mse_10_na , species_est_mse_10_na)
+
+load("/Volumes/kwakupa/idm_na20/sim_input_na20.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha0)
+#inputs2 <- c(input_list_na[[2]]$parameters$detection$alpha0)
+#inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha0)
+inputs <- list(inputs1)
+true_est20 <- rep(inputs, each=60)
+load("/Volumes/kwakupa/idm_miss_na20/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha0)
+inputs <- list(inputs1)
+true_est20_na <- rep(inputs, each=60)
+
+#inter_est_mbias_20 <- Map(mahalanobis_est, true_est20, inter_est20)
+#genus_est_mbias_20 <- Map(mahalanobis_est, true_est20, genus_est20)
+#species_est_mbias_20 <- Map(mahalanobis_est, true_est20, species_est20)
+#estimates_mbias20 <- c(inter_est_mbias_20,genus_est_mbias_20,species_est_mbias_20)
+
+inter_est_mse_20 <- Map(mse, true_est20, subsetting_alpha0(inter_est20,20))
+genus_est_mse_20 <- Map(mse, true_est20, subsetting_alpha0(genus_est10,20))
+species_est_mse_20 <- Map(mse, true_est20, subsetting_alpha0(species_est10,20))
+inter_est_mse_20_na <- Map(mse, true_est20_na, subsetting_alpha0(inter_est10_na,20))
+genus_est_mse_20_na <- Map(mse, true_est20_na, subsetting_alpha0(genus_est10, 20))
+species_est_mse_20_na <- Map(mse, true_est20_na, subsetting_alpha0(species_est10,20))
+estimates_mse20 <- c(inter_est_mse_20,genus_est_mse_20,species_est_mse_20,
+                     inter_est_mse_20_na,genus_est_mse_20_na,species_est_mse_20_na)
+
+load("/Volumes/kwakupa/idm_na30/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha0)
+inputs2 <- c(input_list_na[[2]]$parameters$detection$alpha0)
+inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha0)
+inputs <- list(inputs1, inputs2, inputs3)
+true_est30 <- rep(inputs, each=20)
+
+#inter_est_mbias_30 <- Map(mahalanobis_est , true_est30, inter_est30)
+#genus_est_mbias_30 <- Map(mahalanobis_est , true_est30, genus_est30)
+#species_est_mbias_30 <- Map(mahalanobis_est , true_est30, species_est30)
+#estimates_mbias30 <- c(inter_est_mbias_30,genus_est_mbias_30,species_est_mbias_30)
+
+inter_est_mse_30 <- Map(mse, true_est30, subsetting_alpha0(inter_est30,30))
+genus_est_mse_30 <- Map(mse, true_est30, subsetting_alpha0(genus_est30,30))
+species_est_mse_30 <- Map(mse, true_est30, subsetting_alpha0(species_est30,30))
+inter_est_mse_30_na <- Map(mse, true_est30, subsetting_alpha0(inter_est30_na,30))
+genus_est_mse_30_na <- Map(mse, true_est30, subsetting_alpha0(genus_est30, 30))
+species_est_mse_30_na <- Map(mse, true_est30, subsetting_alpha0(species_est30,30))
+estimates_mse30 <- c(inter_est_mse_30,genus_est_mse_30,species_est_mse_30,
+                     inter_est_mse_30_na,genus_est_mse_30_na,species_est_mse_30_na)
+
+#all_estimates_mbias <- c(estimates_mbias10,estimates_mbias20,estimates_mbias30)
+all_estimates_mse <- c(estimates_mse10,estimates_mse20,estimates_mse30)
+n_est <- 60 #Number of results for each inter etc. 
+n1 <- 180
+n <- 60
+groups <- rep(c(rep("IDM",n), rep("Genus only",n ),rep("Species only",n )),6)
+sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP= 10 (MI)", n1), 
+                   rep("N.SP=20", n1),rep("N.SP= 20 (MI)", n1),
+                   rep("N.SP=30", n1),rep("N.SP= 30 (MI)", n1)),1)
+#all_data_est <- data.frame(cbind(do.call("rbind", all_estimates_mbias),do.call("rbind", all_estimates_mse),groups=groups, sim_group=sim_group))
+all_data_est <- data.frame(cbind(do.call("rbind", all_estimates_mse),groups=groups, sim_group=sim_group))
+colnames(all_data_est) <- c("mse", "groups", "sim_group")
+
+
+gg1 <-all_data_est%>%
+  filter(groups != "Genus only")%>%
+  ggplot()+
+  geom_boxplot(mapping=aes(x=as.factor(sim_group), y= as.numeric(bias), fill=as.factor(groups)))+
+  theme_bw()+
+  ylab("MD of alpha0")+
+  xlab("Number of species")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#00AFBB", "#E7B800"),name="Method")+
+  ylim(c(1.4,1.6))
+
+gg2 <-all_data_est%>%
+  #filter(groups != "Genus only")%>%
+  ggplot()+
+  geom_boxplot(mapping=aes(x=as.factor(sim_group), y= as.numeric(mse), fill=as.factor(groups)))+
+  theme_bw()+
+  ylab("")+
+  xlab("")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+  ylim(c(0,5))
+#ggarrange(gg1,gg2, nrow=1, ncol=2, common.legend = TRUE, legend="bottom")
+
+########
+# ALPHA 1
+########
+load("/Volumes/kwakupa/idm_na10/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha1)
+#inputs2 <- c(input_list_na[[2]]$parameters$detection$alpha1)
+#inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha1)
+inputs <- list(inputs1)
+true_est10 <- rep(inputs, each=60)
+load("/Volumes/kwakupa/idm_miss_na_10/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha1)
+inputs <- list(inputs1)
+true_est10_na <- rep(inputs, each=60)
+
+#inter_est_mbias_10 <- Map(mahalanobis_est, true_est10, inter_est10)
+#genus_est_mbias_10 <- Map(mahalanobis_est, true_est10, genus_est10)
+#species_est_mbias_10 <- Map(mahalanobis_est, true_est10, species_est10)
+#estimates_mbias10 <- c(inter_est_mbias_10,genus_est_mbias_10,species_est_mbias_10)
+subsetting_alpha1 <- function(x,n.species){
+  lapply(x, function(y) y[(n.species+1):(n.species*2)])
+}
+inter_est_mse_10 <- Map(mse, true_est10, subsetting_alpha1(inter_est10,10))
+genus_est_mse_10 <- Map(mse, true_est10, subsetting_alpha1(genus_est10,10))
+species_est_mse_10 <- Map(mse, true_est10, subsetting_alpha1(species_est10,10))
+inter_est_mse_10_na <- Map(mse, true_est10_na, subsetting_alpha1(inter_est10_na,10))
+genus_est_mse_10_na <- Map(mse, true_est10_na, subsetting_alpha1(genus_est10, 10))
+species_est_mse_10_na <- Map(mse, true_est10_na, subsetting_alpha1(species_est10,10))
+estimates_mse10 <- c(inter_est_mse_10,genus_est_mse_10,species_est_mse_10,
+                     inter_est_mse_10_na, genus_est_mse_10_na , species_est_mse_10_na)
+
+load("/Volumes/kwakupa/idm_na20/sim_input_na20.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha1)
+#inputs2 <- c(input_list_na[[2]]$parameters$detection$alpha1)
+#inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha1)
+inputs <- list(inputs1)
+true_est20 <- rep(inputs, each=60)
+load("/Volumes/kwakupa/idm_miss_na20/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha1)
+inputs <- list(inputs1)
+true_est20_na <- rep(inputs, each=60)
+
+#inter_est_mbias_20 <- Map(mahalanobis_est, true_est20, inter_est20)
+#genus_est_mbias_20 <- Map(mahalanobis_est, true_est20, genus_est20)
+#species_est_mbias_20 <- Map(mahalanobis_est, true_est20, species_est20)
+#estimates_mbias20 <- c(inter_est_mbias_20,genus_est_mbias_20,species_est_mbias_20)
+
+inter_est_mse_20 <- Map(mse, true_est20, subsetting_alpha1(inter_est20,20))
+genus_est_mse_20 <- Map(mse, true_est20, subsetting_alpha1(genus_est10,20))
+species_est_mse_20 <- Map(mse, true_est20, subsetting_alpha1(species_est10,20))
+inter_est_mse_20_na <- Map(mse, true_est20_na, subsetting_alpha1(inter_est10_na,20))
+genus_est_mse_20_na <- Map(mse, true_est20_na, subsetting_alpha1(genus_est10, 20))
+species_est_mse_20_na <- Map(mse, true_est20_na, subsetting_alpha1(species_est10,20))
+estimates_mse20 <- c(inter_est_mse_20,genus_est_mse_20,species_est_mse_20,
+                     inter_est_mse_20_na,genus_est_mse_20_na,species_est_mse_20_na)
+
+load("/Volumes/kwakupa/idm_na30/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$detection$alpha1)
+inputs2 <- c(input_list_na[[2]]$parameters$detection$alpha1)
+inputs3 <- c(input_list_na[[3]]$parameters$detection$alpha1)
+inputs <- list(inputs1, inputs2, inputs3)
+true_est30 <- rep(inputs, each=20)
+
+#inter_est_mbias_30 <- Map(mahalanobis_est , true_est30, inter_est30)
+#genus_est_mbias_30 <- Map(mahalanobis_est , true_est30, genus_est30)
+#species_est_mbias_30 <- Map(mahalanobis_est , true_est30, species_est30)
+#estimates_mbias30 <- c(inter_est_mbias_30,genus_est_mbias_30,species_est_mbias_30)
+
+inter_est_mse_30 <- Map(mse, true_est30, subsetting_alpha1(inter_est30,30))
+genus_est_mse_30 <- Map(mse, true_est30, subsetting_alpha1(genus_est30,30))
+species_est_mse_30 <- Map(mse, true_est30, subsetting_alpha1(species_est30,30))
+inter_est_mse_30_na <- Map(mse, true_est30, subsetting_alpha1(inter_est30_na,30))
+genus_est_mse_30_na <- Map(mse, true_est30, subsetting_alpha1(genus_est30, 30))
+species_est_mse_30_na <- Map(mse, true_est30, subsetting_alpha1(species_est30,30))
+estimates_mse30 <- c(inter_est_mse_30,genus_est_mse_30,species_est_mse_30,
+                     inter_est_mse_30_na,genus_est_mse_30_na,species_est_mse_30_na)
+
+#all_estimates_mbias <- c(estimates_mbias10,estimates_mbias20,estimates_mbias30)
+all_estimates_mse <- c(estimates_mse10,estimates_mse20,estimates_mse30)
+n_est <- 60 #Number of results for each inter etc. 
+n1 <- 180
+n <- 60
+groups <- rep(c(rep("IDM",n), rep("Genus only",n ),rep("Species only",n )),6)
+sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP= 10 (MI)", n1), 
+                   rep("N.SP=20", n1),rep("N.SP= 20 (MI)", n1),
+                   rep("N.SP=30", n1),rep("N.SP= 30 (MI)", n1)),1)
+all_data_est <- data.frame(cbind(do.call("rbind", all_estimates_mse),groups=groups, sim_group=sim_group))
+colnames(all_data_est) <- c("mse", "groups", "sim_group")
+
+gg3 <-all_data_est%>%
+  filter(groups != "Genus only")%>%
+  ggplot()+
+  geom_boxplot(mapping=aes(x=as.factor(sim_group), y= as.numeric(bias), fill=as.factor(groups)))+
+  theme_bw()+
+  ylab("MD of alpha1")+
+  xlab("Number of species")+
+  theme(legend.position = "bottom")+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#00AFBB", "#E7B800"),name="Method")+
+  ylim(c(1.4,1.6))
+
+gg4 <-all_data_est%>%
+  filter(groups != "Genus only")%>%
+  ggplot()+
+  geom_boxplot(mapping=aes(x=as.factor(sim_group), y= as.numeric(mse), fill=as.factor(groups)))+
+  theme_bw()+
+  ylab("")+
+  xlab("")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#00AFBB", "#E7B800"),name="Method")+
+  ylim(c(0,5))
+#ggarrange(gg1,gg2, nrow=1, ncol=2, common.legend = TRUE, legend="bottom")
+
+########
+# BETA0
+########
+load("/Volumes/kwakupa/idm_na10/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta0)
+inputs2 <- c(input_list_na[[2]]$parameters$ecological$beta0)
+inputs3 <- c(input_list_na[[3]]$parameters$ecological$beta0)
+inputs <- list(inputs1)
+true_est10 <- rep(inputs, each=60)
+load("/Volumes/kwakupa/idm_miss_na_10/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta0)
+inputs <- list(inputs1)
+true_est10_na <- rep(inputs, each=60)
+
+#inter_est_mbias_10 <- Map(mahalanobis_est, true_est10, inter_est10)
+#genus_est_mbias_10 <- Map(mahalanobis_est, true_est10, genus_est10)
+#species_est_mbias_10 <- Map(mahalanobis_est, true_est10, species_est10)
+#estimates_mbias10 <- c(inter_est_mbias_10,genus_est_mbias_10,species_est_mbias_10)
+subsetting_beta0 <- function(x,n.species){
+  lapply(x, function(y) y[((n.species*2)+1):(n.species*3)])
+}
+inter_est_mse_10 <- Map(mse, true_est10, subsetting_beta0(inter_est10,10))
+genus_est_mse_10 <- Map(mse, true_est10, subsetting_beta0(genus_est10,10))
+species_est_mse_10 <- Map(mse, true_est10, subsetting_beta0(species_est10,10))
+inter_est_mse_10_na <- Map(mse, true_est10_na, subsetting_beta0(inter_est10_na,10))
+genus_est_mse_10_na <- Map(mse, true_est10_na, subsetting_beta0(genus_est10, 10))
+species_est_mse_10_na <- Map(mse, true_est10_na, subsetting_beta0(species_est10,10))
+estimates_mse10 <- c(inter_est_mse_10,genus_est_mse_10,species_est_mse_10,
+                     inter_est_mse_10_na, genus_est_mse_10_na , species_est_mse_10_na)
+
+load("/Volumes/kwakupa/idm_na20/sim_input_na20.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta0)
+inputs2 <- c(input_list_na[[2]]$parameters$ecological$beta0)
+inputs3 <- c(input_list_na[[3]]$parameters$ecological$beta0)
+inputs <- list(inputs1)
+true_est20 <- rep(inputs, each=60)
+load("/Volumes/kwakupa/idm_miss_na20/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta0)
+inputs <- list(inputs1)
+true_est20_na <- rep(inputs, each=60)
+
+#inter_est_mbias_20 <- Map(mahalanobis_est, true_est20, inter_est20)
+#genus_est_mbias_20 <- Map(mahalanobis_est, true_est20, genus_est20)
+#species_est_mbias_20 <- Map(mahalanobis_est, true_est20, species_est20)
+#estimates_mbias20 <- c(inter_est_mbias_20,genus_est_mbias_20,species_est_mbias_20)
+
+inter_est_mse_20 <- Map(mse, true_est20, subsetting_beta0(inter_est20,20))
+genus_est_mse_20 <- Map(mse, true_est20, subsetting_beta0(genus_est20,20))
+species_est_mse_20 <- Map(mse, true_est20, subsetting_beta0(species_est20,20))
+inter_est_mse_20_na <- Map(mse, true_est20_na, subsetting_beta0(inter_est20_na,20))
+genus_est_mse_20_na <- Map(mse, true_est20_na, subsetting_beta0(genus_est20, 20))
+species_est_mse_20_na <- Map(mse, true_est20_na, subsetting_beta0(species_est20,20))
+estimates_mse20 <- c(inter_est_mse_20,genus_est_mse_20,species_est_mse_20,
+                     inter_est_mse_20_na,genus_est_mse_20_na,species_est_mse_20_na)
+
+load("/Volumes/kwakupa/idm_na30/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta0)
+inputs2 <- c(input_list_na[[2]]$parameters$ecological$beta0)
+inputs3 <- c(input_list_na[[3]]$parameters$ecological$beta0)
+inputs <- list(inputs1, inputs2, inputs3)
+true_est30 <- rep(inputs, each=20)
+
+#inter_est_mbias_30 <- Map(mahalanobis_est , true_est30, inter_est30)
+#genus_est_mbias_30 <- Map(mahalanobis_est , true_est30, genus_est30)
+#species_est_mbias_30 <- Map(mahalanobis_est , true_est30, species_est30)
+#estimates_mbias30 <- c(inter_est_mbias_30,genus_est_mbias_30,species_est_mbias_30)
+
+inter_est_mse_30 <- Map(mse, true_est30, subsetting_beta0(inter_est30,30))
+genus_est_mse_30 <- Map(mse, true_est30, subsetting_beta0(genus_est30,30))
+species_est_mse_30 <- Map(mse, true_est30, subsetting_beta0(species_est30,30))
+inter_est_mse_30_na <- Map(mse, true_est30, subsetting_beta0(inter_est30_na,30))
+genus_est_mse_30_na <- Map(mse, true_est30, subsetting_beta0(genus_est30, 30))
+species_est_mse_30_na <- Map(mse, true_est30, subsetting_beta0(species_est30,30))
+estimates_mse30 <- c(inter_est_mse_30,genus_est_mse_30,species_est_mse_30,
+                     inter_est_mse_30_na,genus_est_mse_30_na,species_est_mse_30_na)
+
+#all_estimates_mbias <- c(estimates_mbias10,estimates_mbias20,estimates_mbias30)
+all_estimates_mse <- c(estimates_mse10,estimates_mse20,estimates_mse30)
+n_est <- 60 #Number of results for each inter etc. 
+n1 <- 180
+n <- 60
+groups <- rep(c(rep("IDM",n), rep("Genus only",n ),rep("Species only",n )),6)
+sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP= 10 (MI)", n1), 
+                   rep("N.SP=20", n1),rep("N.SP= 20 (MI)", n1),
+                   rep("N.SP=30", n1),rep("N.SP= 30 (MI)", n1)),1)
+all_data_est <- data.frame(cbind(do.call("rbind", all_estimates_mse),groups=groups, sim_group=sim_group))
+colnames(all_data_est) <- c("mse", "groups", "sim_group")
+
+
+gg5 <-ggplot(all_data_est)+
+  geom_boxplot(mapping=aes(x=as.factor(sim_group), y= as.numeric(bias), fill=as.factor(groups)))+
+  theme_bw()+
+  ylab("MD of beta0")+
+  xlab("Number of species")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+  ylim(c(1.4,1.6))
+
+gg6 <-ggplot(all_data_est)+
+  geom_boxplot(mapping=aes(x=as.factor(sim_group), y= as.numeric(mse), fill=as.factor(groups)))+
+  theme_bw()+
+  ylab("")+
+  xlab("")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+  ylim(c(0,5))
+#ggarrange(gg1,gg2, nrow=1, ncol=2, common.legend = TRUE, legend="bottom")
+
+########
+# BETA1
+########
+load("/Volumes/kwakupa/idm_na10/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta1)
+#inputs2 <- c(input_list_na[[2]]$parameters$ecological$beta1)
+#inputs3 <- c(input_list_na[[3]]$parameters$ecological$beta1)
+inputs <- list(inputs1)
+true_est10 <- rep(inputs, each=60)
+load("/Volumes/kwakupa/idm_miss_na_10/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta1)
+inputs <- list(inputs1)
+true_est10_na <- rep(inputs, each=60)
+#inter_est_mbias_10 <- Map(mahalanobis_est, true_est10, inter_est10)
+#genus_est_mbias_10 <- Map(mahalanobis_est, true_est10, genus_est10)
+#species_est_mbias_10 <- Map(mahalanobis_est, true_est10, species_est10)
+#estimates_mbias10 <- c(inter_est_mbias_10,genus_est_mbias_10,species_est_mbias_10)
+subsetting_beta1 <- function(x,n.species){
+  lapply(x, function(y) y[((n.species*3)+1):(n.species*4)])
+}
+inter_est_mse_10 <- Map(mse, true_est10, subsetting_beta1(inter_est10,10))
+genus_est_mse_10 <- Map(mse, true_est10, subsetting_beta1(genus_est10,10))
+species_est_mse_10 <- Map(mse, true_est10, subsetting_beta1(species_est10,10))
+inter_est_mse_10_na <- Map(mse, true_est10_na, subsetting_beta1(inter_est10_na,10))
+genus_est_mse_10_na <- Map(mse, true_est10_na, subsetting_beta1(genus_est10, 10))
+species_est_mse_10_na <- Map(mse, true_est10_na, subsetting_beta1(species_est10,10))
+estimates_mse10 <- c(inter_est_mse_10,genus_est_mse_10,species_est_mse_10,
+                     inter_est_mse_10_na, genus_est_mse_10_na , species_est_mse_10_na)
+
+load("/Volumes/kwakupa/idm_na20/sim_input_na20.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta1)
+inputs2 <- c(input_list_na[[2]]$parameters$ecological$beta1)
+inputs3 <- c(input_list_na[[3]]$parameters$ecological$beta1)
+inputs <- list(inputs1, inputs2, inputs3)
+true_est20 <- rep(inputs, each=20)
+load("/Volumes/kwakupa/idm_miss_na20/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta0)
+inputs <- list(inputs1)
+true_est20_na <- rep(inputs, each=60)
+#inter_est_mbias_20 <- Map(mahalanobis_est, true_est20, inter_est20)
+#genus_est_mbias_20 <- Map(mahalanobis_est, true_est20, genus_est20)
+#species_est_mbias_20 <- Map(mahalanobis_est, true_est20, species_est20)
+#estimates_mbias20 <- c(inter_est_mbias_20,genus_est_mbias_20,species_est_mbias_20)
+
+inter_est_mse_20 <- Map(mse, true_est20, subsetting_beta1(inter_est20,20))
+genus_est_mse_20 <- Map(mse, true_est20, subsetting_beta1(genus_est20,20))
+species_est_mse_20 <- Map(mse, true_est20, subsetting_beta1(species_est20,20))
+inter_est_mse_20_na <- Map(mse, true_est20_na, subsetting_beta1(inter_est20_na,20))
+genus_est_mse_20_na <- Map(mse, true_est20_na, subsetting_beta1(genus_est20, 20))
+species_est_mse_20_na <- Map(mse, true_est20_na, subsetting_beta1(species_est20,20))
+estimates_mse20 <- c(inter_est_mse_20,genus_est_mse_20,species_est_mse_20,
+                     inter_est_mse_20_na,genus_est_mse_20_na,species_est_mse_20_na)
+
+load("/Volumes/kwakupa/idm_na30/sim_input_na.RData")
+inputs1 <- c(input_list_na[[1]]$parameters$ecological$beta1)
+inputs2 <- c(input_list_na[[2]]$parameters$ecological$beta1)
+inputs3 <- c(input_list_na[[3]]$parameters$ecological$beta1)
+inputs <- list(inputs1, inputs2, inputs3)
+true_est30 <- rep(inputs, each=20)
+
+#inter_est_mbias_30 <- Map(mahalanobis_est , true_est30, inter_est30)
+#genus_est_mbias_30 <- Map(mahalanobis_est , true_est30, genus_est30)
+#species_est_mbias_30 <- Map(mahalanobis_est , true_est30, species_est30)
+#estimates_mbias30 <- c(inter_est_mbias_30,genus_est_mbias_30,species_est_mbias_30)
+
+inter_est_mse_30 <- Map(mse, true_est30, subsetting_beta1(inter_est30,30))
+genus_est_mse_30 <- Map(mse, true_est30, subsetting_beta1(genus_est30,30))
+species_est_mse_30 <- Map(mse, true_est30, subsetting_beta1(species_est30,30))
+inter_est_mse_30_na <- Map(mse, true_est30, subsetting_beta1(inter_est30_na,30))
+genus_est_mse_30_na <- Map(mse, true_est30, subsetting_beta1(genus_est30, 30))
+species_est_mse_30_na <- Map(mse, true_est30, subsetting_beta1(species_est30,30))
+estimates_mse30 <- c(inter_est_mse_30,genus_est_mse_30,species_est_mse_30,
+                     inter_est_mse_30_na,genus_est_mse_30_na,species_est_mse_30_na)
+
+#all_estimates_mbias <- c(estimates_mbias10,estimates_mbias20,estimates_mbias30)
+all_estimates_mse <- c(estimates_mse10,estimates_mse20,estimates_mse30)
+n_est <- 60 #Number of results for each inter etc. 
+n1 <- 180
+n <- 60
+groups <- rep(c(rep("IDM",n), rep("Genus only",n ),rep("Species only",n )),6)
+sim_group <- rep(c(rep("N.SP=10", n1), rep("N.SP= 10 (MI)", n1), 
+                   rep("N.SP=20", n1),rep("N.SP= 20 (MI)", n1),
+                   rep("N.SP=30", n1),rep("N.SP= 30 (MI)", n1)),1)
+all_data_est <- data.frame(cbind(do.call("rbind", all_estimates_mse),groups=groups, sim_group=sim_group))
+colnames(all_data_est) <- c("mse", "groups", "sim_group")
+
+
+gg7 <-ggplot(all_data_est)+
+  geom_boxplot(mapping=aes(x=as.factor(sim_group), y= as.numeric(bias), fill=as.factor(groups)))+
+  theme_bw()+
+  ylab("MD of beta1")+
+  xlab("Number of species")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0.1))+
+  #scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+  ylim(c(1.4,1.6))
+
+gg8 <-ggplot(all_data_est)+
+  geom_boxplot(mapping=aes(x=as.factor(sim_group), y= as.numeric(mse), fill=as.factor(groups)))+
+  theme_bw()+
+  ylab("")+
+  xlab("")+
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 7))+
+ # scale_fill_discrete(name="Method")+
+  scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
+  ylim(c(0,5))
+ggarrange(gg2,gg4,gg6,gg8, nrow=2, ncol=2, common.legend = TRUE, legend="bottom")
+
+
+ggarrange(gg_even_mse, gg_shan_mse, gg_aed_mse,
+          ncol=3, 
+          nrow = 1, 
+          common.legend = TRUE, 
+          legend = "bottom",
+          labels = c("(a) RMSE of eveness", "(b) RMSE of H'", "(c) RMSE of AED"))
+
+###################
+# All plots together
+################
+#theme_update(text = element_text(size=10))
+figure <- ggarrange(gg2,gg4,gg6,gg8,gg_even_mse, gg_shan_mse, gg_aed_mse, nrow=2, ncol=4, common.legend = TRUE, legend="top",
+                    labels = c("(a) ahpha0", "(b) alpha1",
+                               "(c) beta0", "(d) beta1",
+                               "(e) Eveness", "(f) H'", "(g) AED"),
+                    font.label=list(color="black",size=9), 
+                    hjust = -1, vjust = -0.3)
+annotate_figure(figure,
+                #top = text_grob("Visualizing Tooth Growth", color = "red", face = "bold", size = 14),
+                bottom = text_grob("Number of species", 
+                                   hjust = 1),
+                left = text_grob("Root Mean Square Error", rot = 90)#,
+               # right = text_grob(bquote("Superscript: ("*kg~NH[3]~ha^-1~yr^-1*")"), rot = 90)
+)

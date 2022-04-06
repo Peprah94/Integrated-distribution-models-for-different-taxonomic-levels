@@ -1,7 +1,10 @@
+#Data needed to run this script
+#From the output of sumulations_interractions.R
 load("sim_interractions_na.RData")
 
 source("fnx_for estimation.R")
 
+#Packages needed to run this script
 require(coda)
 require(nimble)
 require(devtools)
@@ -42,11 +45,7 @@ run_nimble_model <- function(simulations_all){
     #############################################################
     for(spe.tag in 1:n.species){
       beta0[spe.tag]~ dnorm(0, sd=1) 
-      #mean.lambda[spe.tag] <- exp(beta0[spe.tag])
-      #beta0[spe.tag] <- log(mean.lambda[spe.tag])
-      #mean.lambda[spe.tag] ~ dunif(0,50)
       alpha0[spe.tag] ~  dnorm(0,sd=100)
-      #mean.p[spe.tag] ~ dunif(0,1)
       beta1[spe.tag] ~ dnorm(0,sd=1)
       alpha1[spe.tag] ~ dnorm(0,sd=100)
     }
@@ -66,7 +65,6 @@ run_nimble_model <- function(simulations_all){
     
     for (spe.tag in 1:n.species) {
       for (ss in 1:n.species) {
-        # Cov[spe.tag, ss] <- inprod(lamLatent[1:NLatent, spe.tag], lamLatent[1:NLatent, ss])+ Sigma[spe.tag,ss]
         CorrIn[spe.tag, ss] <- Cov[spe.tag, ss]/sqrt(Cov[spe.tag, spe.tag] * Cov[ss, ss])
       }
     }
@@ -77,14 +75,6 @@ run_nimble_model <- function(simulations_all){
       for(spe.tag in 1:n.species){
         mu[site.tag,spe.tag] <- beta0[spe.tag] + beta1[spe.tag]*ecological_cov[site.tag]+eta.lam[site.tag,spe.tag]
         log(lambda[site.tag, spe.tag]) <-  mu[site.tag,spe.tag]
-        
-        #cloglog(psi[site.tag, spe.tag]) <-mu[site.tag,spe.tag]
-        
-        # psi1[site.tag, spe.tag] <- psi[site.tag, spe.tag]-0.000001 
-        #log(lambda[site.tag, spe.tag]) <-  cloglog(psi[site.tag, spe.tag])
-        #lambda[site.tag, spe.tag] <- -log( 1-psi1[site.tag, spe.tag])
-        #cloglog(psi[site.tag, spe.tag]) <- log(lambda[site.tag, spe.tag])
-        #psi[site.tag, spe.tag] <- 1-exp(- lambda[site.tag, spe.tag])
       }
     } 
     
@@ -171,7 +161,6 @@ run_nimble_model <- function(simulations_all){
                                beta1= rnorm(const$n.species,0,1),#covariate effect
                                alpha0=rnorm(const$n.species,0,1), #detection probability
                                alpha1=rnorm(const$n.species,0,1),
-                               #mean.p = rep(0.5,const$n.species),
                                omega= diag(const$n.species),
                                z=pa_data(idm_data$X),
                                a1=2,
@@ -203,16 +192,13 @@ run_nimble_model <- function(simulations_all){
   Cmwtc <- compileNimble(mwtc)
   
   mcmcconf <- configureMCMC(Cmwtc, monitors = c("beta0", "beta1", "alpha0","alpha1", "pis","CorrIn"))
-  #mcmcconf <- configureMCMC(Cmwtc, monitors = c("beta0", "beta1", "alpha0","alpha1"))
   
-  #mcmcconf$removeSamplers(c("lamLatent", "phi","sig", "delta", "a1", "a2"))
-  #mcmcconf$addSampler(c("lamLatent", "phi","sig", "delta", "a1", "a2"), "RW_block")
+#Change samplers
   mcmcconf$removeSamplers(c("beta0", "beta1","alpha0", "alpha1"))
   mcmcconf$addSampler(c("beta0"), "RW_block")
   mcmcconf$addSampler(c("beta1"), "RW_block")
   mcmcconf$addSampler(c("alpha0"), "RW_block")
   mcmcconf$addSampler(c("alpha1"), "RW_block")
-  #mcmcconf$addSampler(c("lamLatent", "phi","sig", "delta", "a1", "a2"), "crossLevel")
   
   Rmcmc <- buildMCMC(mcmcconf)
   cmcmc <- compileNimble(Rmcmc, project = Cmwtc,resetFunctions = TRUE) 

@@ -1,7 +1,10 @@
+#Data needed to run this script
+#From the output of sumulations_interractions.R
 load("sim_interractions_na.RData")
 
 source("fnx_for estimation.R")
 
+#Packages needed to run this script
 require(coda)
 require(nimble)
 require(devtools)
@@ -38,13 +41,9 @@ run_nimble_model <- function(simulations_all){
     #                 PRIOR DISTRIBUTIONS                       #
     #############################################################
     for(spe.tag in 1:n.species){
-      beta0[spe.tag]~ dnorm(0, sd=5) 
-      #mean.lambda[spe.tag] <- exp(beta0[spe.tag])
-      #beta0[spe.tag] <- log(mean.lambda[spe.tag])
-      #mean.lambda[spe.tag] ~ dunif(0,50)
+      beta0[spe.tag]~ dnorm(0, sd=1) 
       alpha0[spe.tag] ~  dnorm(0,sd=100)
-      #mean.p[spe.tag] ~ dunif(0,1)
-      beta1[spe.tag] ~ dnorm(0,sd=5)
+      beta1[spe.tag] ~ dnorm(0,sd=1)
       alpha1[spe.tag] ~ dnorm(0,sd=100)
     }
     
@@ -73,15 +72,11 @@ run_nimble_model <- function(simulations_all){
     for(site.tag in 1:n.sites){
       for(spe.tag in 1:n.species){
         mu[site.tag,spe.tag] <- beta0[spe.tag] + beta1[spe.tag]*ecological_cov[site.tag]+eta.lam[site.tag,spe.tag]
-        #log(lambda[site.tag, spe.tag]) <-  mu[site.tag,spe.tag]
        
         cloglog(psi[site.tag, spe.tag]) <-mu[site.tag,spe.tag]
         
         psi1[site.tag, spe.tag] <- psi[site.tag, spe.tag]-0.000001 
-        #log(lambda[site.tag, spe.tag]) <-  cloglog(psi[site.tag, spe.tag])
         lambda[site.tag, spe.tag] <- -log( 1-psi1[site.tag, spe.tag])
-        #cloglog(psi[site.tag, spe.tag]) <- log(lambda[site.tag, spe.tag])
-        #psi[site.tag, spe.tag] <- 1-exp(- lambda[site.tag, spe.tag])
       }
     } 
     
@@ -127,16 +122,13 @@ run_nimble_model <- function(simulations_all){
         pis[site.tag, spe.tag] <- (lambda[site.tag,spe.tag]/lambda.g[site.tag])
       }
     }
-    
-    # sumLogProb ~ dnorm(0,1)
   })
-  
+
   data <- simulations_all
+  
   #dimensions of the data
   dim_data <- dim(data[[1]]) 
   data_dim <- dim_data[2] 
-  
-  
   
   # Constants for the model 
   const <- list(n.sites = dim_data[1], 
@@ -170,29 +162,12 @@ run_nimble_model <- function(simulations_all){
     zst[is.na(zst)] <- 0
     return(zst)
   }
-  delta = rgamma(const$NLatent, 2,1)
-  phi =matrix(rgamma(const$n.species*const$NLatent,1.5,1.5), ncol=const$NLatent, nrow=const$n.species)
-  tau= cumprod(delta)
-  lamLatent = matrix(NA, ncol=const$NLatent, nrow=const$n.species)
-  
-  for(spe.tag in 1:const$n.species){
-    for(i in 1:const$NLatent){
-      lamLatent[spe.tag,i] <- rnorm(1,0,sd=sqrt(1/(phi[spe.tag,i]*tau[i])))
-    }
-  }
+
   idm_inits <- function(){list(beta0= rnorm(const$n.species,0,1),
                                beta1= rnorm(const$n.species,0,1),#covariate effect
                                alpha0=rnorm(const$n.species,0,1), #detection probability
                                alpha1=rnorm(const$n.species,0,1),
-                               #mean.p = rep(0.5,const$n.species),
-                               #omega= diag(const$n.species),
-                               z=pa_data(idm_data$X),
-                               a1=2,
-                               a2=3,
-                               delta=delta,
-                               phi=phi,
-                               lamLatent= lamLatent ,
-                               sig = rgamma(const$n.species, 2,1)
+                               z=pa_data(idm_data$X)
   )#True Presence/Absence
   }
   initsList <- idm_inits() 
@@ -215,17 +190,13 @@ run_nimble_model <- function(simulations_all){
                       inits = initsList)
   Cmwtc <- compileNimble(mwtc)
   
+  #Change samplers
   mcmcconf <- configureMCMC(Cmwtc, monitors = c("beta0", "beta1", "alpha0","alpha1", "pis","CorrIn"))
-  #mcmcconf <- configureMCMC(Cmwtc, monitors = c("beta0", "beta1", "alpha0","alpha1"))
-  
-  #mcmcconf$removeSamplers(c("lamLatent", "phi","sig", "delta", "a1", "a2"))
-  #mcmcconf$addSampler(c("lamLatent", "phi","sig", "delta", "a1", "a2"), "RW_block")
   mcmcconf$removeSamplers(c("beta0", "beta1","alpha0", "alpha1"))
   mcmcconf$addSampler(c("beta0"), "RW_block")
   mcmcconf$addSampler(c("beta1"), "RW_block")
   mcmcconf$addSampler(c("alpha0"), "RW_block")
   mcmcconf$addSampler(c("alpha1"), "RW_block")
-  #mcmcconf$addSampler(c("lamLatent", "phi","sig", "delta", "a1", "a2"), "crossLevel")
   
   Rmcmc <- buildMCMC(mcmcconf)
   cmcmc <- compileNimble(Rmcmc, project = Cmwtc,resetFunctions = TRUE) 
@@ -260,10 +231,10 @@ run_nimble_model <- function(simulations_all){
   estimation <- estimate$summary$all.chains
   est_fixed <- estimation[((const$n.species*const$n.species)+1):((const$n.species*const$n.species)+(const$n.species*4)),1]
   est_pis <- matrix(estimation[,1][((const$n.species*const$n.species)+((const$n.species)*4)+1) : ((const$n.species*const$n.species)+((const$n.species)*4)+(const$n.sites*const$n.species) )], nrow=const$n.sites, ncol=const$n.species, byrow=FALSE)
-  return(list(est_pis, est_fixed, estimation,N_over_rhat))
+  return(list(est_pis, est_fixed,N_over_rhat))
 }
 
-cl <- makeCluster(10)
+cl <- makeCluster(20)
 setDefaultCluster(cl)
 inter_estimates_na <- pblapply(simulations_all_na[1:100], run_nimble_model, cl=cl)
 save(inter_estimates_na, file="estimate_inter_na.RData")

@@ -1,26 +1,24 @@
-#load the data from the simulations
+#Data needed to run this script
+#From the output of sumulations_interractions.R
 load("sim_interractions_na.RData")
+
 source("fnx_for estimation.R")
 
-#Packages needed to run this script
 require(coda)
 require(nimble)
 require(devtools)
 require(mcmcplots)
 require(MCMCglmm)
-require(furrr)
-require(purrr)
-require(future.apply)
 library(parallel)
 library(foreach)
-library(progressr)
+
 library(pbapply)
 
-handlers(global = TRUE)
+#handlers(global = TRUE)
+op <- pboptions(type="timer")
 
-#Model to run the NIMBLE code
 run_nimble_model <- function(simulations_all){
-  
+  start_time <- Sys.time() 
   # Set up
   
   #### Load required packages ####
@@ -29,11 +27,8 @@ run_nimble_model <- function(simulations_all){
   require(devtools)
   require(mcmcplots)
   require(MCMCglmm)
-  require(furrr)
-  require(purrr)
-  require(future.apply)
   library(parallel)
-  library(foreach)
+  library(ggmcmc)
   ############################################
   code <- nimbleCode({
     
@@ -42,9 +37,9 @@ run_nimble_model <- function(simulations_all){
     #############################################################
     for(spe.tag in 1:n.species){
       beta0[spe.tag]~ dnorm(0, sd=1) 
-      alpha0[spe.tag] ~  dnorm(0,sd=10)
-      beta1[spe.tag] ~ dnorm(0,sd=10)
-      alpha1[spe.tag] ~ dnorm(0,sd=10)
+      alpha0[spe.tag] ~  dnorm(0,sd=100)
+      beta1[spe.tag] ~ dnorm(0,sd=1)
+      alpha1[spe.tag] ~ dnorm(0,sd=100)
     }
     
     for(spe.tag in 1:n.species){
@@ -52,59 +47,27 @@ run_nimble_model <- function(simulations_all){
     }
     
     for(site.tag in 1:n.sites){
-      eta.lam[site.tag, 1:n.species] ~ dmnorm(mean = mu.eta[1:n.species],cov= Cov[1:n.species, 1:n.species])
+      eta.lam[site.tag, 1:n.species] ~ dmnorm(mean = mu.eta[1:n.species],prec= omega[1:n.species, 1:n.species])
     }
     
     #Vague prior for variance covariance matrix
-    #omega[1:n.species,1:n.species] ~ dwish(R[1:n.species,1:n.species], df)
-    #sigma2[1:n.species,1:n.species] <- inverse(omega[1:n.species,1:n.species])
-    
-    #Priors for covariance matrix
-    a1 ~ dgamma(2,1)
-    a2 ~ dgamma(2,1)
-    delta[1] ~ dgamma(a1,1)
-    for(factor in 2:NLatent) {
-      delta[factor] ~ dgamma(a2,1)
-    }
+    omega[1:n.species,1:n.species] ~ dwish(R[1:n.species,1:n.species], df)
+    Cov[1:n.species,1:n.species] <- inverse(omega[1:n.species,1:n.species])
     
     
-    for(l in 1:NLatent){
-      tauDelta[l] <- prod(delta[1:l])
-    }
-    
-    for(spe.tag in 1:n.species){
-      sig[spe.tag] ~ dgamma(a.sigma, b.sigma)
-    }
-    Sigma[1:n.species, 1:n.species] <- diag(1/sig[1:n.species])
-    
-    
-    
-    for (spe.tag in 1:n.species) {
-      for (l in 1:NLatent) {
-        phi[spe.tag,l] ~ dgamma(nu/2,nu/2)
-        tauFS[spe.tag, l] <- 1/(phi[spe.tag,l]*tauDelta[l])
-        lamLatent[spe.tag, l] ~ dnorm(mean = 0, sd= sqrt(tauFS[spe.tag,l]))
-      }
-    }
-    #Cov[1:n.species, 1:n.species] <- diag(n.species)
-    
-    
-    Cov[1:n.species, 1:n.species] <- lamLatent[1:n.species, 1:NLatent] %*% t(lamLatent[1:n.species, 1:NLatent]) + Sigma[1:n.species, 1:n.species]
     for (spe.tag in 1:n.species) {
       for (ss in 1:n.species) {
-        # Cov[spe.tag, ss] <- inprod(lamLatent[1:NLatent, spe.tag], lamLatent[1:NLatent, ss])+ Sigma[spe.tag,ss]
         CorrIn[spe.tag, ss] <- Cov[spe.tag, ss]/sqrt(Cov[spe.tag, spe.tag] * Cov[ss, ss])
       }
     }
     
     precmatrix[1:n.species, 1:n.species] <- inverse(Cov[1:n.species, 1:n.species])
-    
     #Link between the abundance and occupancy
     for(site.tag in 1:n.sites){
       for(spe.tag in 1:n.species){
         mu[site.tag,spe.tag] <- beta0[spe.tag] + beta1[spe.tag]*ecological_cov[site.tag]+eta.lam[site.tag,spe.tag]
         cloglog(psi[site.tag, spe.tag]) <- mu[site.tag,spe.tag]
-        lambda[site.tag, spe.tag] <- exp(mu[site.tag,spe.tag])
+        log(lambda[site.tag, spe.tag]) <- mu[site.tag,spe.tag]
       }
     } 
     
@@ -128,7 +91,7 @@ run_nimble_model <- function(simulations_all){
     }
     
     #############################################################
-    #                pis                                        #
+    #                pis                           #
     #############################################################
 
 
@@ -138,12 +101,10 @@ run_nimble_model <- function(simulations_all){
         pis[site.tag, spe.tag] <- (lambda[site.tag,spe.tag]/lambda.g[site.tag])
       }
     }
- 
+    
   })
   
-  #Calling the data
   data <- simulations_all
-  
   #dimensions of the data
   dim_data <- dim(data[[1]]) 
   data_dim <- dim_data[2] 
@@ -156,11 +117,10 @@ run_nimble_model <- function(simulations_all){
                 n.replicates = 5,
                 n.visit=dim_data[3],
                 nu = 3,
-                NLatent=2, #Number of latent variables
+                NLatent=(data_dim/5),
                 a.sigma = 1,
                 b.sigma=1
   )
-  
   
   #R and df
   Rmat <- diag(const$n.species)
@@ -181,10 +141,6 @@ run_nimble_model <- function(simulations_all){
     zst[is.na(zst)] <- 0
     return(zst)
   }
-  delta = rgamma(const$NLatent, 2,1)
-  phi =matrix(rgamma(const$n.species*const$NLatent,1.5,1.5), ncol=const$NLatent, nrow=const$n.species)
-  tau= cumprod(delta)
-  lamLatent = matrix(NA, ncol=const$NLatent, nrow=const$n.species)
   
   for(spe.tag in 1:const$n.species){
     for(i in 1:const$NLatent){
@@ -196,16 +152,9 @@ run_nimble_model <- function(simulations_all){
                                alpha0=rnorm(const$n.species,0,1), #detection probability
                                alpha1=rnorm(const$n.species,0,1),
                                omega= diag(const$n.species),
-                               z=pa_data(idm_data$X),
-                               a1=2,
-                               a2=2,
-                               delta=delta,
-                               phi=phi,
-                               lamLatent= lamLatent ,
-                               sig = rgamma(const$n.species, 2,1)
-  )
+                               z=pa_data(idm_data$X)
+  )#True Presence/Absence
   }
-  
   initsList <- idm_inits() 
   
   modelInfo <- list(
@@ -226,34 +175,55 @@ run_nimble_model <- function(simulations_all){
                       inits = initsList)
   Cmwtc <- compileNimble(mwtc)
   
+  #change samplers
   mcmcconf <- configureMCMC(Cmwtc, monitors = c("beta0", "beta1", "alpha0","alpha1", "pis","CorrIn"))
- 
-  # Use block sampling of the parameters of the multiplicative gamma process shrinkage prior
-  mcmcconf$removeSamplers(c("lamLatent", "phi","sig", "delta", "a1", "a2"))
-  mcmcconf$addSampler(c("lamLatent", "phi","sig", "delta", "a1", "a2"), "RW_block")
+  mcmcconf$removeSamplers(c("beta0", "beta1","alpha0", "alpha1"))
+  mcmcconf$addSampler(c("beta0"), "RW_block")
+  mcmcconf$addSampler(c("beta1"), "RW_block")
+  mcmcconf$addSampler(c("alpha0"), "RW_block")
+  mcmcconf$addSampler(c("alpha1"), "RW_block")
   
   Rmcmc <- buildMCMC(mcmcconf)
   cmcmc <- compileNimble(Rmcmc, project = Cmwtc,resetFunctions = TRUE) 
   
   estimate <- runMCMC(cmcmc,
-                      niter = 500000,
-                      nburnin = 400000,
-                      nchains=4,
+                      niter = 100000,
+                      nburnin = 50000,
+                      nchains=5,
                       thin = 10,
                       summary=TRUE,
                       samples=TRUE,
                       setSeed = TRUE,
                       samplesAsCodaMCMC=TRUE)
+  end.time <- Sys.time()
+  time_taken <- as.numeric(round(end.time-start_time,2))
+  
+  mcmclist <- ggs(estimate$samples)
+  subset_parameters <- c(paste0("beta0[",1:const$n.species,"]"),
+                         paste0("beta1[",1:const$n.species,"]"),
+                         paste0("alpha0[",1:const$n.species,"]"),
+                         paste0("alpha1[",1:const$n.species,"]")
+  )
+  
+  aa <-mcmclist%>%
+    filter(Parameter %in% subset_parameters)%>%
+    ggs_Rhat()
+  Rhat_data <- aa$data[,5]
+  all_rhat <- all(Rhat_data < 1.05) #Rhat is less than 1.05
+  N_over_rhat <-length(which(Rhat_data > 1.05))/length(subset_parameters) #Rhats over 1.04 
   
   estimation <- estimate$summary$all.chains
-  est_fixed <- estimation[((const$n.species*const$n.species)+1):((const$n.species*const$n.species)+40),1]
+  est_fixed <- estimation[((const$n.species*const$n.species)+1):((const$n.species*const$n.species)+(const$n.species*4)),1]
   est_pis <- matrix(estimation[,1][((const$n.species*const$n.species)+((const$n.species)*4)+1) : ((const$n.species*const$n.species)+((const$n.species)*4)+(const$n.sites*const$n.species) )], nrow=const$n.sites, ncol=const$n.species, byrow=FALSE)
-  return(list(est_pis, est_fixed, estimation))
+  return(list(est_pis, est_fixed, estimation,N_over_rhat))
 }
 
 ## Run the simulations
-cl <- makeCluster(5)
+
+cl <- makeCluster(10)
 setDefaultCluster(cl)
-species_estimates_na <- pblapply(simulations_all_na, run_nimble_model, cl=cl)
+
+species_estimates_na <- pblapply(simulations_all_na[1:100], run_nimble_model, cl=cl)
 
 save(species_estimates_na, file="estimate_species_na.RData")
+stopCluster(cl)

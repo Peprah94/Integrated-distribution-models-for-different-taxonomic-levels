@@ -1,6 +1,5 @@
 library(unix)
 unix::rlimit_as(100*10^9)
-
 mbias <- function(true, estimate){
   ret <- mean(true-estimate) 
   return(ret)
@@ -18,7 +17,7 @@ hill_index <- function(q, pis){
   return(hill)
 }
 
-
+#hill_index(2,pis)
 #estimation of shannon index
 shan_index <- function(pis){
   #shan <- exp(-rowSums(pis * log(pis)))
@@ -34,6 +33,18 @@ eveness <- function(pis){
 return(even)
   }
 
+
+
+mbias <- function(true, estimate){
+  ret <- mean(true-estimate) 
+  return(ret)
+}
+
+
+mse <- function(true, estimate){
+  ret <- mean((true-estimate)^2)
+  return(ret)
+}
 
 #Trials
 #shan_index(pis)

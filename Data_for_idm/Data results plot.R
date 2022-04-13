@@ -8,52 +8,56 @@ library(gganimate)
 library(ggpubr)
 library(pbapply)
 library(ggplot2)
-load("/Volumes/kwakupa/idm_data/data_idm.RData")
-source("fnx_for estimation.R")
+
+load("/idm_data/data_idm.RData")
+source("/idm_data/fnx_for estimation.R")
 
 #sites
 site_id <- simulations_all[[1]]$sites$X1km_square
+
+#######################
 #BUMBLEBEES
-load("/Volumes/kwakupa/idm_data/estimate_inter_data.RData")
-load("/Volumes/kwakupa/idm_data/estimate_species_data.RData")
-load("/Volumes/kwakupa/idm_data/estimate_genus_data.RData")
+############################
+load("/idm_data/estimate_inter_data.RData")
+load("/idm_data/estimate_species_data.RData")
+load("/idm_data/estimate_genus_data.RData")
 bb_inter_17 <- inter_estimates_data
 bb_species_17 <- species_estimates_data
 bb_genus_17 <- genus_estimates_data
 
-load("/Volumes/kwakupa/idm_data1/estimate_inter_data.RData")
-load("/Volumes/kwakupa/idm_data1/estimate_species_data.RData")
-load("/Volumes/kwakupa/idm_data1/estimate_genus_data.RData")
+load("/idm_data1/estimate_inter_data.RData")
+load("/idm_data1/estimate_species_data.RData")
+load("/idm_data1/estimate_genus_data.RData")
 bb_inter_18 <- inter_estimates_data
 bb_species_18 <- species_estimates_data
 bb_genus_18 <- genus_estimates_data
 
 # HOVERFLIES
-load("/Volumes/kwakupa/idm_data2/estimate_inter_data.RData")
-load("/Volumes/kwakupa/idm_data2/estimate_species_data.RData")
-load("/Volumes/kwakupa/idm_data2/estimate_genus_data.RData")
+load("/idm_data2/estimate_inter_data.RData")
+load("/idm_data2/estimate_species_data.RData")
+load("/idm_data2/estimate_genus_data.RData")
 hv_inter_17 <- inter_estimates_data
 hv_species_17 <- species_estimates_data
 hv_genus_17 <- genus_estimates_data
 
-load("/Volumes/kwakupa/idm_data3/estimate_inter_data.RData")
-load("/Volumes/kwakupa/idm_data3/estimate_species_data.RData")
-load("/Volumes/kwakupa/idm_data3/estimate_genus_data.RData")
+load("/idm_data3/estimate_inter_data.RData")
+load("/idm_data3/estimate_species_data.RData")
+load("/idm_data3/estimate_genus_data.RData")
 hv_inter_18 <- inter_estimates_data
 hv_species_18 <- species_estimates_data
 hv_genus_18 <- genus_estimates_data
 
 # SOLITARY BEES
-load("/Volumes/kwakupa/idm_data4/estimate_inter_data.RData")
-load("/Volumes/kwakupa/idm_data4/estimate_species_data.RData")
-load("/Volumes/kwakupa/idm_data4/estimate_genus_data.RData")
+load("/idm_data4/estimate_inter_data.RData")
+load("/idm_data4/estimate_species_data.RData")
+load("/idm_data4/estimate_genus_data.RData")
 sb_inter_17 <- inter_estimates_data
 sb_species_17 <- species_estimates_data
 sb_genus_17 <- genus_estimates_data
 
-load("/Volumes/kwakupa/idm_data5/estimate_inter_data.RData")
-load("/Volumes/kwakupa/idm_data5/estimate_species_data.RData")
-load("/Volumes/kwakupa/idm_data5/estimate_genus_data.RData")
+load("/idm_data5/estimate_inter_data.RData")
+load("/idm_data5/estimate_species_data.RData")
+load("/idm_data5/estimate_genus_data.RData")
 sb_inter_18 <- inter_estimates_data
 sb_species_18 <- species_estimates_data
 sb_genus_18 <- genus_estimates_data
@@ -109,6 +113,7 @@ all_data_17 <- data.frame(rbind(bb_shan_inter_17,
                           sites = rep(site_id, 3),
                           group= rep(c("IDM","Species Only", "Genus Only"), 
                                      each=nrow(bb_shan_inter_17)))
+
 all_data_18 <- data.frame(rbind(bb_shan_inter_18,
                                 bb_shan_species_18,
                                 bb_shan_genus_18),
@@ -140,8 +145,9 @@ gg2 <- ggplot(all_data_18, aes(sites))+
   scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
   ylim(c(0,3))
 
-
-#Hoverflies
+#####################
+#   Hoverflies
+##################
 all_data_17 <- data.frame(rbind(hv_shan_inter_17,
                                 hv_shan_species_17,
                                 hv_shan_genus_17),
@@ -179,8 +185,9 @@ gg4 <- ggplot(all_data_18, aes(sites))+
   scale_fill_manual(values = c("#FC4E07","#00AFBB", "#E7B800"),name="Method")+
   ylim(c(0,4))
 
-
-#Solitary bees
+######################
+#     Solitary bees
+######################
 all_data_17 <- data.frame(rbind(sb_shan_inter_17,
                                 sb_shan_species_17,
                                 sb_shan_genus_17),

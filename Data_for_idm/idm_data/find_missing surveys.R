@@ -38,3 +38,35 @@ all_surveys <- pantraps_surveys %>%
 
 write.csv(all_surveys, "Data_for_idm/idm_data/all_surveys.csv",
           row.names = FALSE)
+
+
+#######################
+# attempt at formatting
+#######################
+
+
+update_pantraps_wide <- update_pantraps %>%
+  select(-c("taxon_group", "n_traps", "insect_group")) %>%
+  pivot_wider(id_cols = c("X1km_square", "date"), 
+              names_from = species, values_from = n_traps_present) %>%
+  mutate_at(vars(3:169), ~replace_na(., 0))
+
+
+update_genus_wide <- update_genus %>%
+  pivot_wider(id_cols = c("X1km_square", "date"), 
+              names_from = insect_group, values_from = count) %>%
+  mutate_at(vars(3:12), ~replace_na(., 0))
+
+
+all_data_wide <- full_join(update_pantraps_wide, update_genus_wide,
+                           by = c("X1km_square", "date"))
+
+
+bumblebees <- all_data_wide %>%
+  select(c(
+    "X1km_square",
+    "date",
+    "bumblebees", 
+    which(names(all_data_wide)%in%species_lookup[species_lookup$insect_group=="bumblebees", "species"] == TRUE)))
+
+

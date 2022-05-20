@@ -2,6 +2,7 @@
  
 library(tidyverse)
 library(lubridate)
+library(BRCmap)
 
 
 #Reading the data
@@ -70,3 +71,13 @@ bumblebees <- all_data_wide %>%
     which(names(all_data_wide)%in%species_lookup[species_lookup$insect_group=="bumblebees", "species"] == TRUE)))
 
 
+
+# get coordinates
+
+
+coords <- gr_let2num(all_data_wide$X1km_square)
+
+all_sites_coords <- unique(cbind(all_data_wide$X1km_square, coords))
+
+write.csv(all_sites_coords, "Data_for_idm/idm_data/sites_coords.csv",
+          row.names = FALSE)

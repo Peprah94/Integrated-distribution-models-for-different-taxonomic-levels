@@ -44,10 +44,7 @@ require("LaplacesDemon")
 library(pbapply)
 
 #simulating the covariance matrix 
-sigma_sim <- function(n){
-  cov <- rinvwishart(nu=(n+1),S= diag(1,n, n))
-  return(cov)
-}
+
 
 sim <- function(input, seed){
   n.sites = input$constants$n.sites
@@ -147,10 +144,14 @@ sim <- function(input, seed){
   
   for(k in 1:n.visit){
     index_missing_genus <- sample(1:n.sites, n.gen,replace=FALSE)
-    index_missing_species <- sample(1:n.sites, n.id,replace=FALSE)
+    index_missing_site_species <- sample(1:n.sites, n.id,replace=FALSE)
     y[-(index_missing_genus),k] <- 0
-    x[-(index_missing_species), ,k] <- 0   
+    for(site.tag in seq_along(index_missing_site_species)){
+      index_missing_species <- sample(1:n.species, input$constants$nspecies_no_missing, replace = FALSE)
+    x[(index_missing_site_species[site.tag]),-(index_missing_species) ,k] <- 0
+    }
   }
+
   
   #proportions for shannon index
   pis <- lambda.s/lambda.g

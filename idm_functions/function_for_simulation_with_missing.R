@@ -46,14 +46,14 @@ library(pbapply)
 #simulating the covariance matrix 
 
 
-sim <- function(input, seed){
+sim <- function(input, seed, shared){
   n.sites = input$constants$n.sites
   n.species = input$constants$n.species
   n.visit = input$constants$n.visit
   n.id = input$constants$n.id
   n.gen = input$constants$n.gen
-  n.replicate= input$constants$n.replicate
-  q = input$constants$q
+  n.replicate = input$constants$n.replicate
+
   
   set.seed(seed)
   
@@ -89,7 +89,7 @@ sim <- function(input, seed){
   # Dimension of matrix to store the various parameter values
   
   N <-log_lambda <- vector("numeric", n.sites)
-  z <-mu <- lambda.s <- epsilon <- eta <- p.tag <- matrix(NA, nrow = n.sites, ncol = n.species)
+  z <-mu <- lambda.s <- epsilon <- eta <- p.tag <- psi.s <- matrix(NA, nrow = n.sites, ncol = n.species)
   x <- array(NA, dim = c(n.sites, n.species, n.visit))
   y <- matrix(NA, nrow=n.sites, ncol=n.visit)
   
@@ -101,6 +101,7 @@ sim <- function(input, seed){
   
   #### Simulation of data 
   #linear predictor for ecological process
+  if(shared == "all"){
   for(site.tag in 1:n.sites){
     for(spe.tag in 1:n.species){
       mu[site.tag, spe.tag] = (input$parameters$ecological$beta0)[spe.tag] + (input$parameters$ecological$beta1)[spe.tag]* (input$covariate$ecological)[site.tag] + epsilon[site.tag,spe.tag]
@@ -108,13 +109,41 @@ sim <- function(input, seed){
   }
   
   # estimation of occupancy probability
-  psi.s <- 1-exp(-exp(mu)) - 0.000001
-  # Subtracting 0.000001 ensuresthat psi.s gets very large but is never 1.
-  #if psi.s = 1, then lambda.s is inf and does not generate a sample
+  lambda.s <- exp(mu)
   
-  # mean abundance
-  lambda.s <- -log(1-psi.s)
+  psi.s <- invcloglog(mu)
+
   
+  }
+  
+  if(shared == "covariate_inter"){
+    for(site.tag in 1:n.sites){
+      for(spe.tag in 1:n.species){
+        psi.s[site.tag, spe.tag] = invcloglog((input$parameters$ecological$beta0)[spe.tag] + (input$parameters$ecological$beta1)[spe.tag]* (input$covariate$ecological)[site.tag] + epsilon[site.tag,spe.tag])
+        lambda.s[site.tag, spe.tag] = exp(-4 + (input$parameters$ecological$beta1)[spe.tag]* (input$covariate$ecological)[site.tag] + epsilon[site.tag,spe.tag])
+      }
+    }
+  }
+  
+  if(shared == "covariate"){
+    for(site.tag in 1:n.sites){
+      for(spe.tag in 1:n.species){
+        psi.s[site.tag, spe.tag] = invcloglog((input$parameters$ecological$beta0)[spe.tag] + (input$parameters$ecological$beta1)[spe.tag]* (input$covariate$ecological)[site.tag] + epsilon[site.tag,spe.tag])
+        lambda.s[site.tag, spe.tag] = exp(-4 + (input$parameters$ecological$beta1)[spe.tag]* (input$covariate$ecological)[site.tag])
+      }
+    }
+  }
+  
+  if(shared == "interractions"){
+    for(site.tag in 1:n.sites){
+      for(spe.tag in 1:n.species){
+        psi.s[site.tag, spe.tag] = invcloglog((input$parameters$ecological$beta0)[spe.tag] + (input$parameters$ecological$beta1)[spe.tag]* (input$covariate$ecological)[site.tag] + epsilon[site.tag,spe.tag])
+        lambda.s[site.tag, spe.tag] = exp(-4 + 2 * (input$covariate$ecological)[site.tag] + epsilon[site.tag,spe.tag]) #beta2 = 1
+      }
+    }
+  }
+  
+
   #mean abundance for genus
   lambda.g <- rowSums(lambda.s) 
   
@@ -143,25 +172,44 @@ sim <- function(input, seed){
   # Making provision for the missing data at sites and species
   
   for(k in 1:n.visit){
-    index_missing_genus <- sample(1:n.sites, n.gen,replace=FALSE)
+    index_missing_genus <- sample(1:n.sites, n.id,replace=FALSE)
     index_missing_site_species <- sample(1:n.sites, n.id,replace=FALSE)
-    y[-(index_missing_genus),k] <- 0
-    for(site.tag in seq_along(index_missing_site_species)){
-      index_missing_species <- sample(1:n.species, input$constants$nspecies_no_missing, replace = FALSE)
-    x[(index_missing_site_species[site.tag]),-(index_missing_species) ,k] <- 0
-    }
+    y[-(index_missing_genus),k] <- NA
+    #for(site.tag in seq_along(index_missing_site_species)){
+      #index_missing_species <- sample(1:n.species, input$constants$nspecies_no_missing, replace = FALSE)
+    x[-(index_missing_site_species), ,k] <- NA
+    #}
   }
 
   
-  #proportions for shannon index
   pis <- lambda.s/lambda.g
   
+  #incidence estimates 
+  incidence_estimates <- incidence(psi.s, p.tag)
+  richness <- rowSums(z)
+  incidence_hills1 <- hill_index(1, incidence_estimates, TRUE)
+  incidence_hills2 <- hill_index(2, incidence_estimates, TRUE)
   
+  #abundace estimate
+  abundance_hills0 <- hill_index(0, lambda.s, TRUE)
+  abundance_hills1 <- hill_index(1, lambda.s, TRUE)
+  abundance_hills2 <- hill_index(2, lambda.s, TRUE)
   # Returning the results
+  
   data <- list(mat.species=x,
                mat.genus = y,
                pis = pis,
                ecological_cov =input$covariate$ecological ,
-               detection_cov = input$covariate$detection)
+               detection_cov = input$covariate$detection,
+               p.tag = p.tag,
+               psi.s = psi.s,
+               z = z,
+               richness = richness,
+               incidence_hills1 = incidence_hills1,
+               incidence_hills2 = incidence_hills2,
+               abundance_hills0 = abundance_hills0,
+               abundance_hills1 = abundance_hills1,
+               abundance_hills2 = abundance_hills2)
+  
   return(data)
 }

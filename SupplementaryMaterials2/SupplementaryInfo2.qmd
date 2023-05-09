@@ -1,0 +1,273 @@
+---
+title: "SupplementaryInformation Two: Supplementary figures"
+format: pdf
+header-includes:
+  - \usepackage{caption}                            
+  - \DeclareCaptionLabelFormat{Sformat}{#1 S2-#2}     
+  - \captionsetup[table]{labelformat=Sformat}  
+  - \captionsetup[figure]{labelformat=Sformat} 
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# Case Study: Application to PoMS data
+
+We load the data and functions needed to plot the supplementary figures.
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+source("idmFunctions/functionForEstimation.R")
+load("CaseStudy/data_idm.RData")
+
+# Define parameters
+models <- c("IDMSH" , "SOM", "IDMCO", "GCMSH", "GCMCO")
+insectGrps <- c("Bumblebees", "Hoverflies", "Solitary bees")
+nGroups = length(insectGrps)
+nModels = length(models)
+
+#load data from Figures folder
+parsEstimates <- read_csv("Figures/sigmaEstimates.csv")
+shannonEstimates <- read_csv("Figures/shannonEstimates.csv")
+rHatEstimates <- read_csv("Figures/rHatEstimates.csv")
+
+# load correlation matrices plot
+load("Figures/correlationMatrices.RData")
+```
+
+
+## Convergence checks
+
+```{r}
+#| echo: false
+#| fig.cap: "Rhat estimates for the Markov chain Monte Carlo samples for each of models used in this study. A model was considered to have converged if the r-hat estimates were less than or equal to 1.1 (corresponding to the left side of the dashed line.)"
+#| label: rhatCaseStudy
+#| fig-height: 6
+#| fig-width: 10
+
+
+rHatEstimates%>%
+ # filter(!grepl("Cov|shan|eta.lam",Parameter))%>%
+  filter(grepl("sigma|rho|mu",Parameter))%>%
+  mutate(method = rep(rep(models, each = 150/(nGroups*nModels)), nGroups),
+         insects = rep(insectGrps,
+                       each= 150/nGroups))%>%
+  ggplot(aes(x = Rhat, y = Parameter, col = method))+
+  geom_point(position=position_dodge(0.5))+
+  geom_vline(xintercept = 1.1, linetype = "dashed")+
+  facet_grid( ~ insects)+
+  theme_classic()+
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        strip.placement = 'outside',
+        strip.background = element_rect(colour = "black", fill = "white")#,
+       # text = element_text(size = 20)
+        )
+```
+
+## Estimates of community hyperparameters
+
+### Community mean 
+```{r}
+#| echo: false
+#| fig.cap: "Community mean estimated from the five models in this study for intercept (mulambda and muSpecies) and latitudinal effect (muLatitude) from the PoMS case study."
+#| label: muEstimates
+#| fig-height: 5
+
+parsEstimates%>%
+  filter(!grepl("rho|sigma",variable))%>%
+  mutate(value = ifelse(variable == "mulambda" & model %in% c("IDMSH", "SOM", "IGSH"), NA, value))%>%
+    mutate(value = ifelse(variable == "muSpecies" & model == "IGCO", NA, value))%>%
+  ggplot( aes(x=insects, y=value, col=as.factor(model),  shape = as.factor(model))) +
+  geom_point(position=position_dodge(0.5))+
+  geom_errorbar(aes(ymin=value-sd, ymax=value+sd), width=0.5,
+                position=position_dodge(0.5))+
+  geom_hline(yintercept = 0, linetype = "dashed")+
+  facet_grid( ~ variable)+
+  scale_x_discrete(guide = guide_axis(angle = 45)) +
+  xlab("Insect group")+
+  ylab(expression(paste("Posterior mean" %+-% "SE")))+
+  theme_classic()+
+  coord_trans()+
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        strip.placement = 'outside',
+        strip.background = element_rect(colour = "black", fill = "white"))+
+  scale_color_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH', 'SOM'))+
+  scale_shape_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH','SOM'))
+```
+
+### Community variance
+```{r}
+#| echo: false
+#| fig.cap: "Community variance estimated from the five models in this study for the detection probability (sigmaAlphaSpecies, sigmaAlphaSites, sigmaAlphaVisits), and the observation process (intercept: sigmaLambda, sigmaSpecies and latitudinal effect: sigmaLatitude)from the PoMS case study."
+#| label: varEstimates
+#| fig-height: 8
+#| fig-width: 10
+
+
+parsEstimates%>%
+    filter(!grepl("rho|mu",variable))%>%
+    ggplot( aes(x=insects, y=value, col=as.factor(model), shape=as.factor(model))) +
+    geom_point(position=position_dodge(0.5))+
+    geom_errorbar(aes(ymin=value-sd, ymax=value+sd), width=.2,
+                  position=position_dodge(0.5))+
+    ylim(c(0, 15))+
+    facet_grid( ~ variable, scales = "free_y")+
+    scale_x_discrete(guide = guide_axis(angle = 45)) +
+    xlab("Insect group")+
+    ylab(expression(paste("Posterior mean" %+-% "SE")))+
+  theme_classic()+
+    coord_trans()+
+    theme(legend.position = "bottom", legend.title = element_blank(),
+          strip.placement = 'outside',
+          strip.background = element_rect(colour = "black", fill = "white"))+
+  scale_color_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH', 'SOM'))+
+  scale_shape_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH','SOM'))
+```
+
+### Overdispersion parameter
+
+```{r}
+#| echo: false
+#| fig.cap: "Overdispersion parameter ($\theta$) estimated from the models that included the FIT count data. "
+#| label: rhoEstimates
+#| fig-height: 5
+
+parsEstimates%>%
+    filter(!grepl("sigma|mu",variable))%>%
+    filter(model != "SOM")%>%
+    #mutate(value = ifelse(method == "Species Only", NA, value))%>%
+    ggplot( aes(x=insects, y=value, col=as.factor(model), shape = as.factor(model))) +
+    geom_point(position=position_dodge(0.5))+
+    geom_errorbar(aes(ymin=value-sd, ymax=value+sd), width=.2,
+                  position=position_dodge(0.5))+
+    #facet_grid(. ~ model)+
+    scale_x_discrete(guide = guide_axis(angle = 45)) +
+    xlab("Insect group")+
+    ylab(expression(paste("Posterior mean" %+-% "SE")))+
+    theme_classic()+
+    coord_trans()+
+    theme(legend.position = "bottom", legend.title = element_blank(),
+          strip.placement = 'outside',
+          strip.background = element_rect(colour = "black", fill = "white"))+
+  scale_color_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH', 'SOM'))+
+  scale_shape_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH','SOM'))
+```
+
+
+## Posterior predictive checks
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig.cap: "Histogram of the test statistic used for the posterior predictive checks for the case study. Each of the models used in the study has two histograms: one for the Pantrap data and the other is for the FIT count data. For each pair of plots, the title is named with the insect group as the prefix: BB for bumblebees, HV for hoverflies and SB for solitary bees. The suffix of the title is named after the insect group used to model the data: integrated distribution model with shared likelihood structure (IDMSH), integrated distribution model with covariate likelihood structure (IDMCO), species occupancy model (SOM), group count model with shared likelihood structure (GCMSH) and group count model with covariate likelihood structure (GCMCO). The value of the test statistic from the original data is coloured in the red vertical lines and the Bayesian p-value ($Bpv$) is presented in each of the histograms. The models that do not model a particular dataset has empty histograms and the Bayesian p-value is NA."
+#| label: ppp
+#| fig-height: 14
+#| fig-width: 16
+
+ #load data
+  load("CaseStudy/bumblebees/posteriorPredCheck.RData")
+  bb <- ret
+  load("CaseStudy/hoverflies/posteriorPredCheck.RData")
+  hv <- ret
+    load("CaseStudy/solitarybees/posteriorPredCheck.RData")
+  sb <- ret
+
+
+  allResults <- c(bb,
+                  hv,
+                  sb)
+
+  # return estimated p-values
+ estPvalues <-  lapply(allResults, function(x){
+    colMeans(x[,c(1,2,9)])
+  })%>%
+    do.call("rbind",.)%>%
+    as.data.frame("")%>%
+    mutate(model = rep(c("IDMSH", "SOM", "IDMCO", "GCMSH", "GCMCO"), 3),
+           insectGrps = rep(insectGrps, each = 5))
+colnames(estPvalues)[1:3] <- c("PanTrap", "FITcnt_median", "FITcnt_mean")
+
+
+## Histogram of values
+
+histPlots <- lapply(allResults, function(x){
+  #convert data to data frame
+  x <- x%>%
+    as.data.frame()
+  
+  #pantrap data
+  ## Extract x-intercept, p-value and points to annotate figure
+  x_intercept <-x$V4[1]
+  x1 <- mean(range(x$V3))
+  y1 <- 1
+  bpv <- mean(x$V1)
+    if(is.na(bpv)){ 
+      bpv <- 'NA'
+        x1 <- 0.1
+  y1 <- 1
+      }
+  pvalText <- paste("Bpv = ", bpv)
+  
+  ##plot data
+  pantrap <- x %>%
+    ggplot()+
+    geom_histogram(mapping = aes(x = V3))+
+    ylab("Counts")+
+    xlab("Average occupied sites")+
+    theme_classic()+
+    geom_vline(xintercept = x_intercept, col = "red")+
+    annotate(geom = 'label', x = x1, y = y1, 
+             label = pvalText)
+  
+  #FIT count data
+  ## Extract x-intercept, p-value and points to annotate figure
+  x_intercept <-x$V8[1]
+  x1 <- mean(range(x$V7))
+  y1 <- 1
+  bpv <- mean(x$V9)
+    if(is.na(bpv)){ 
+      bpv <- 'NA'
+        x1 <- 0.1
+  y1 <- 1
+      }
+  pvalText <- paste("Bpv = ", bpv)
+  
+  ##plot data
+  fitCnts <- x %>%
+    ggplot()+
+    geom_histogram(mapping = aes(x = V7))+
+    ylab("Counts")+
+    xlab("Average FIT counts")+
+    theme_classic()+
+    geom_vline(xintercept = x_intercept, col = "red")+
+    annotate(geom = 'label', x = x1, y = y1, 
+             label = pvalText)
+  
+  ggpubr::ggarrange(pantrap, fitCnts, nrow = 1)
+})
+
+ggpubr::ggarrange( plotlist = histPlots,
+                   nrow = 5, 
+                   ncol = 3,
+                   hjust = -2.5,
+                   labels = c("BB - IDMSH",
+                              "BB - SOM",
+                              "BB - IDMCO",
+                              "BB - GCMSH",
+                              "BB - GCMCO",
+                              "HV - IDMSH",
+                              "HV - SOM",
+                              "HV - IDMCO",
+                              "HV - GCMSH",
+                              "HV - GCMCO",
+                              "SB - IDMSH",
+                              "SB - SOM",
+                              "SB - IDMCO",
+                              "SB - GCMSH",
+                              "SB - GCMCO"))
+
+```
+

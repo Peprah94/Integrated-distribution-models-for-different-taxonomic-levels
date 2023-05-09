@@ -34,4 +34,16 @@ This folder contains scripts of functions and results for the data analysis on t
 
 This folder hosts scripts to run the 2-fold crossValidation in the study
 
-* 
+* _cross_valid_funcion.R_: script that formats NIMBLE's runCrossValidation script to include modifications in the log-predictive density and also to include the samplers defined in the case study.
+* _cross_validation.R_: script to run the two-fold cross vaildation
+* _bumblebeesCorssValidation.R, hoverfliesCorssValidation.R, solitarybeesCorssValidation.R_: run the 2-fold crossvalidation for each insect group: bumblebees, solitarybees and hoverflies respectively using the function defined in cross_validation.R
+
+## Figures
+
+This filder contains the figures and results of manipulation of results.
+
+## SupplementaryMaterials1
+This folder contains the exploratory analysis done on the PoMS dataset.
+
+## SupplementaryMaterials2
+This folder contains the write-up of the supplementary figures referred to in the main paper.

@@ -1,0 +1,325 @@
+---
+title: "IDM Presentation"
+author: "Kwaku Peprah Adjei"
+format: html
+editor: visual
+---
+
+# Researh questions and how to answer them
+
+## A. Can we combine data from different taxonomic levels to make inference aboult alpha diversity?
+
+-   Devolop an IDM for this problem
+-   Alpha diversity measures to use: Hills indeces
+-   Check convergence of MCMC for identifiability issues
+
+## Does IDM perform better than single models?
+
+-   Compare true simulated hills indices values to estimated ones using
+    -   RMSE : issues with outliers?
+
+    -   Mahalanobis : correlation between estimates?
+-   SO model should not be able to estimate the Shannon index properly
+
+## Does the performance depend on:
+
+-   The mothod of parameter sharing: `shared`, `covariate`, `interractions`?
+
+-   the number of species?
+
+`Currently the time taken to run a simulation increases with the number of species. Should we use comparatively smaller number of species or number of simulations?`
+
+## Is information gained from species occupancy models greater than group count data?
+
+-   Use the log predictive density between IDM and single models
+
+    -   issues with different sample nodes
+
+    -   Do you average?
+
+# Methods of parameter sharing and the hills indices relative abundance component
+
+In this presentation:
+
+$i$ is the `species index`
+
+$j$ is the `site index`
+
+## 1. `Shared`
+
+$$
+\begin{split}
+log(\lambda_{ij}) &= cloglog(\psi_{ij}) = \beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij}; \quad  \eta_{ij} \sim N(0, \Sigma).\\
+\zeta_{ij} &= \lambda_{ij}
+\end{split}
+$$
+
+## 2. `Covariate`
+
+$$
+\begin{split}
+log(\lambda_{ij}) &=  \beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij}; \quad  \eta_{ij} \sim N(0, \Sigma).\\
+cloglog(\psi_{ij}) &= \nu + \beta_{1i}* X_{j} + \eta_{ij}\\
+\zeta_{ij} &= exp(\nu + \beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij})
+\end{split}
+$$
+
+## 3. `Interractions`
+
+$$
+\begin{split}
+log(\lambda_{ij}) &=  \beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij}; \quad  \eta_{ij} \sim N(0, \Sigma).\\
+cloglog(\psi_{ij}) &= \nu + \nu_{1}* X_{j} + \eta_{ij}\\
+\zeta_{ij} &= exp(\nu + \beta_{0i} + (\beta_{1i} + \nu_{1})* X_{j} + \eta_{ij})
+\end{split}
+$$
+
+# Hills Indices
+
+$$
+H_{j}' = - \sum_{i} {p_{ij} \ln(p_ij)}
+$$
+
+1.  `shared` $$
+    \begin{split}
+    p_{ij} &= \frac{exp(\beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij})}{\sum_i exp(\beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij})}
+    \end{split}
+    $$
+
+This equation is the same for all the IDM and single models, but different $H'$ values due to priors for $\beta_{0i}$.
+
+2.  `Covariate`
+
+For both IDM and SO model,
+
+$$
+\begin{split}
+p_{ij} &= \frac{exp(\beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij})}{\sum_i exp(\beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij})}
+\end{split}
+$$ and for GC model, $$
+\begin{split}
+p_{ij} &= \frac{exp(\beta_{1i}* X_{j} + \eta_{ij})}{\sum_i exp(\beta_{1i}* X_{j} + \eta_{ij})}
+\end{split}
+$$
+
+3.  `Interractions`
+
+For IDM and SO model, $$
+\begin{split}
+p_{ij} &= \frac{exp(\beta_{0i} + \beta_{1i} * X_{j} + \eta_{ij})}{\sum_i exp(\beta_{0i} + \beta_{1i}  * X_{j} + \eta_{ij})},
+\end{split}
+$$
+
+and for GC model, $$
+\begin{split}
+p_{ij} &= \frac{exp(\eta_{ij})}{\sum_i exp(\eta_{ij})},
+\end{split}
+$$
+
+# Exploratory Data Analysis
+
+```{r, message=FALSE, warning=FALSE, echo = FALSE}
+source("exploratoryAnalysis.R")
+```
+
+## Summary of Exploration
+
+-   Negative binomial regression fits the group count data for all groups better. There seems to be an underdispersion for the counts for all the groups.
+
+-   The Species occupancy model can be fit with the Binomial regression with species effect. There seems to be a variation from the visits, and it can also be added.
+
+-   Latitude has a significant effect in all models. It can be a good covariate in the model.
+
+## Details of exploratory analysis
+
+I present a distribution of the counts and average occupancy probability of the groups used in the data analysis. The group count data is fit with poisson regression, negative binomial regression (check of for over/under dispersion) and a binomial regression with cloglog link. I fit an *intercept-only* and *random effect* model on *visits* with *latitude* as fixed effect covariate. For both intercept-only models (IOM) and random effect model(REM), I compare the standard errors of the poisson regression to the negative binomial (`intNBRatio` for intercept-only models and `intNBRatioRE` for random effect model) and binomial cloglog (`intRatio` for intercept-only models and `intRatioRE` for random effect model). The Negative Binomial overdispersion parameter is also returned for both the intercept and random effects model
+
+## Bumblebees
+
+*Distribution*
+
+```{r, echo = FALSE, fig.height=20, fig.width=20}
+#| label: bbGCPlot
+#| fig-cap: "Disribution of bumblebess counts for the or the 74 PoMS sites."
+rr <- exploratoryDataPlots(1)
+ rr[[1]]
+
+```
+
+```{r, echo = FALSE,  fig.height=20, fig.width=20}
+#| label: bbSOPlot
+#| fig-cap: "Distribution of average bumblebees occupancy for the 74 PoMS sites."
+#rr <- exploratoryDataPlots(1)
+ rr[[2]]
+```
+
+*Fitting model*
+
+```{r, echo = FALSE}
+modelFitExploration(1)
+```
+
+## Hoverflies
+
+```{r, echo = FALSE, fig.height=20, fig.width=20}
+#| label: hvGCPlot
+#| fig-cap: "Disribution of hoverflies counts for the or the 74 PoMS sites."
+rr <- exploratoryDataPlots(2)
+ rr[[1]]
+
+```
+
+```{r, echo = FALSE, echo = FALSE, fig.height=20, fig.width=20}
+#| label: hvSOPlot
+#| fig-cap: "Distribution of average hoverflies occupancy for the 74 PoMS sites."
+#rr <- exploratoryDataPlots(1)
+ rr[[2]]
+```
+
+*Fitting model*
+
+```{r, echo = FALSE}
+modelFitExploration(2)
+```
+
+## Solitary bees
+
+```{r, echo = FALSE, fig.height=20, fig.width=20}
+#| label: sbGCPlot
+#| fig-cap: "Disribution of solitary bees counts for the or the 74 PoMS sites."
+rr <- exploratoryDataPlots(3)
+ rr[[1]]
+
+```
+
+```{r, echo = FALSE, echo = FALSE, fig.height=20, fig.width=20}
+#| label: sbSOPlot
+#| fig-cap: "Distribution of average solitary bees occupancy for the 74 PoMS sites."
+#rr <- exploratoryDataPlots(1)
+ rr[[2]]
+```
+
+*Fitting model*
+
+```{r, echo = FALSE}
+modelFitExploration(3)
+```
+
+# Initial Results for Bumblebees
+
+## Convergence checks
+
+::: {.column-page layout-ncol="3"}
+```{r, fig.height=10}
+#| label: fig-idm
+#| fig-cap: "Convergence checks of parameters from IDM."
+#| echo: false
+#| message: false
+#| warning: false
+
+library(ggmcmc)
+library(dplyr)
+load("estimateDataInterBumNew1.RData")
+mcmclist <- ggs(estimates[[3]]$samples)
+
+
+#ggs_traceplot(mcmclist, family = "rho")
+
+t <- mcmclist%>%
+  filter(!grepl('Cov|shan', Parameter))
+  
+ggs_Rhat(t)
+```
+
+```{r, fig.height=10}
+#| label: fig-species
+#| fig-cap: "Convergence checks of parameters from SOM."
+#| echo: false
+#| message: false
+#| warning: false
+
+load("estimateDataSpeciesBumNew1.RData")
+mcmclist <- ggs(estimates[[3]]$samples)
+
+
+#ggs_traceplot(mcmclist, family = "rho")
+
+t <- mcmclist%>%
+  filter(!grepl('Cov|shan', Parameter))
+  
+ggs_Rhat(t)
+```
+
+```{r, fig.height=10}
+#| label: fig-genus
+#| fig-cap: "Convergence checks of parameters from GOM."
+#| echo: false
+#| message: false
+#| warning: false
+
+load("estimateDataGenusBumNew1.RData")
+mcmclist <- ggs(estimates[[3]]$samples)
+
+
+#ggs_traceplot(mcmclist, family = "rho")
+
+t <- mcmclist%>%
+  filter(!grepl('Cov|shan', Parameter))
+  
+ggs_Rhat(t)
+```
+:::
+
+## Estimates from the three models
+
+```{r, echo = FALSE, message=FALSE}
+load("estimateDataInterBumNew1.RData")
+idm <- estimates[[1]]
+load("estimateDataSpeciesBumNew1.RData")
+species <- estimates[[1]]
+load("estimateDataGenusBumNew1.RData")
+genus <- estimates[[1]]
+
+subsetPars <- function(data){
+  ret <- data[grep("beta|rho|sig", rownames(data)), c(1,3)]%>%
+    data.frame()
+  return(ret)
+}
+
+idmRes <- subsetPars(idm)
+speRes <- subsetPars(species)
+genRes <- subsetPars(genus)
+allRes <- cbind(idmRes, speRes, genRes)
+colnames(allRes) <- c("IDM(mean)",
+                      "IDM(sd)",
+                      "SOM (mean)",
+                      "SOM (sd)",
+                      "GOM (mean)",
+                      "GOM (sd)")
+
+allResWithRatio <- allRes%>%
+  mutate(idmSpe = `IDM(sd)`/`SOM (sd)`,
+         idmGen = `IDM(sd)`/`GOM (sd)`)
+
+library(kableExtra)
+allResWithRatio%>%
+  kbl(.,digits = 2, caption = "Parameter estimates with their standard deviation from the three models.") %>%
+  kable_material(c("striped", "hover"))%>%
+  kable_paper(full_width = F)
+```
+
+```{r, echo = FALSE, warning = FALSE}
+load("estimateDataInterBumNew1.RData")
+idmLppd <- estimates[[3]]$WAIC$WAIC
+load("estimateDataSpeciesBumNew1.RData")
+speciesLppd <- estimates[[3]]$WAIC$WAIC
+load("estimateDataGenusBumNew1.RData")
+genusLppd <- estimates[[3]]$WAIC$WAIC
+
+allLppd <- data.frame(idm = idmLppd,
+                      speciesLppd = speciesLppd,
+                      genusLppd = genusLppd)
+allLppd%>%
+  kbl(.,digits = 2, caption = "WAIC from the 3 models.") %>%
+  kable_material(c("striped", "hover"))
+```

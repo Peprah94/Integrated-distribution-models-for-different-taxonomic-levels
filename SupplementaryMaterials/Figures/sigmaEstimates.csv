@@ -1,0 +1,163 @@
+"method","insects","model","variable","value","sd"
+"IDM","Bumblebees","shared","muAlphaSites",-0.510493212950807,8.68721260174825
+"IDM","Bumblebees","covariate","muAlphaSites",-0.555904069607165,7.76658533160363
+"Group only","Bumblebees","shared","muAlphaSites",-0.0733248980599391,9.90380555873771
+"Group only","Bumblebees","covariate","muAlphaSites",-0.0343724405757995,10.0387949068826
+"Species Only","Bumblebees","shared","muAlphaSites",1.49043994727824,4.41234680397182
+"Species Only","Bumblebees","covariate","muAlphaSites",3.42135835580842,4.10256665376623
+"IDM","Hoverflies","shared","muAlphaSites",-2.31843512364473,5.5455186452411
+"IDM","Hoverflies","covariate","muAlphaSites",-1.99975876067783,4.13630981622492
+"Group only","Hoverflies","shared","muAlphaSites",-0.0766391270633547,9.92969636306007
+"Group only","Hoverflies","covariate","muAlphaSites",0.0494642620035834,9.94950082929885
+"Species Only","Hoverflies","shared","muAlphaSites",-5.6989821982554,4.91950708181787
+"Species Only","Hoverflies","covariate","muAlphaSites",-1.76403140974438,4.50357681629155
+"IDM","Solitary bees","shared","muAlphaSites",-6.05689685004731,3.14285081215346
+"IDM","Solitary bees","covariate","muAlphaSites",-3.72710399039755,3.346404595752
+"Group only","Solitary bees","shared","muAlphaSites",-0.095997095836094,9.85599532333957
+"Group only","Solitary bees","covariate","muAlphaSites",0.0393110564102649,9.96821002404591
+"Species Only","Solitary bees","shared","muAlphaSites",-2.04719553309744,11.410630731809
+"Species Only","Solitary bees","covariate","muAlphaSites",-1.75939143224876,4.21731508273416
+"IDM","Bumblebees","shared","muAlphaSpecies",-2.54218528737354,8.68738239032156
+"IDM","Bumblebees","covariate","muAlphaSpecies",-3.3909360554247,7.77275816572704
+"Group only","Bumblebees","shared","muAlphaSpecies",-0.0570681237857291,10.0895972950028
+"Group only","Bumblebees","covariate","muAlphaSpecies",-0.0626290819687456,10.0702144321919
+"Species Only","Bumblebees","shared","muAlphaSpecies",-5.54972835879171,4.41888234081409
+"Species Only","Bumblebees","covariate","muAlphaSpecies",-7.45425494131527,4.11700504903718
+"IDM","Hoverflies","shared","muAlphaSpecies",-1.09188174094679,5.55187886995968
+"IDM","Hoverflies","covariate","muAlphaSpecies",-2.26017615351963,4.13661803847144
+"Group only","Hoverflies","shared","muAlphaSpecies",0.0741597344379015,9.91558427822304
+"Group only","Hoverflies","covariate","muAlphaSpecies",-0.0245645126803209,9.95116088887914
+"Species Only","Hoverflies","shared","muAlphaSpecies",1.44861845742518,4.92382178967681
+"Species Only","Hoverflies","covariate","muAlphaSpecies",-2.5150181924368,4.51090202206036
+"IDM","Solitary bees","shared","muAlphaSpecies",2.20183519379467,3.13635236439452
+"IDM","Solitary bees","covariate","muAlphaSpecies",-0.455343128740849,3.33773172366953
+"Group only","Solitary bees","shared","muAlphaSpecies",-0.167080671001082,9.89120074175645
+"Group only","Solitary bees","covariate","muAlphaSpecies",-0.00754503141627908,9.95518740637153
+"Species Only","Solitary bees","shared","muAlphaSpecies",-2.18327666434402,11.4159511303778
+"Species Only","Solitary bees","covariate","muAlphaSpecies",-2.47894656196422,4.23289990539511
+"IDM","Bumblebees","shared","muLatitude",0.0754374148047891,0.198990881844859
+"IDM","Bumblebees","covariate","muLatitude",-0.348786850308211,0.232214579168705
+"Group only","Bumblebees","shared","muLatitude",-0.503111911664114,0.587571282728939
+"Group only","Bumblebees","covariate","muLatitude",-0.495355631356247,0.150605258927662
+"Species Only","Bumblebees","shared","muLatitude",1.08068169978584,1.07344306225487
+"Species Only","Bumblebees","covariate","muLatitude",1.06884644856664,0.951703491139485
+"IDM","Hoverflies","shared","muLatitude",0.0108219920723092,0.0787918203025088
+"IDM","Hoverflies","covariate","muLatitude",-0.0666305886823584,0.0825096720218196
+"Group only","Hoverflies","shared","muLatitude",-0.237669600221299,0.591808042134343
+"Group only","Hoverflies","covariate","muLatitude",-0.149080797218344,0.0970458281530639
+"Species Only","Hoverflies","shared","muLatitude",0.0122958439842678,0.105627334300103
+"Species Only","Hoverflies","covariate","muLatitude",0.0123281534088891,0.104917738438701
+"IDM","Solitary bees","shared","muLatitude",-0.96348379642418,0.176336753441391
+"IDM","Solitary bees","covariate","muLatitude",-0.76613079252742,0.156566708952436
+"Group only","Solitary bees","shared","muLatitude",-0.650773028236253,0.487094561201278
+"Group only","Solitary bees","covariate","muLatitude",-0.635184866065271,0.174734698890589
+"Species Only","Solitary bees","shared","muLatitude",-0.862397990665613,0.236876882492405
+"Species Only","Solitary bees","covariate","muLatitude",-0.836095160674322,0.230438667681115
+"IDM","Bumblebees","shared","muSpecies",-1.6601791289944,0.363223417120576
+"IDM","Bumblebees","covariate","muSpecies",0.162594914709436,1.00059361221502
+"Group only","Bumblebees","shared","muSpecies",-7.39724621381689,4.32205296504071
+"Group only","Bumblebees","covariate","muSpecies",-0.106177836874674,9.98436559944608
+"Species Only","Bumblebees","shared","muSpecies",1.16601500738868,1.61225129378068
+"Species Only","Bumblebees","covariate","muSpecies",0.987875563005683,1.27753995349387
+"IDM","Hoverflies","shared","muSpecies",-1.72356309503883,0.186347815173847
+"IDM","Hoverflies","covariate","muSpecies",-0.792696312969422,0.206049048269317
+"Group only","Hoverflies","shared","muSpecies",-13.1218407397982,5.49755495884638
+"Group only","Hoverflies","covariate","muSpecies",-0.0011596577143929,10.1572424089814
+"Species Only","Hoverflies","shared","muSpecies",-0.813235752378403,0.220433915974396
+"Species Only","Hoverflies","covariate","muSpecies",-0.780344665174564,0.205896137103318
+"IDM","Solitary bees","shared","muSpecies",-2.39904248244067,0.197925177838411
+"IDM","Solitary bees","covariate","muSpecies",-2.05369120659357,0.206291195199749
+"Group only","Solitary bees","shared","muSpecies",-11.8547845493153,5.08802701404499
+"Group only","Solitary bees","covariate","muSpecies",-0.0544610508539801,10.0079193809404
+"Species Only","Solitary bees","shared","muSpecies",-2.08695361416481,0.221738025379398
+"Species Only","Solitary bees","covariate","muSpecies",-2.06756536753716,0.224819506962079
+"IDM","Bumblebees","shared","rho",0.31631236931039,0.039268125892224
+"IDM","Bumblebees","covariate","rho",0.547140408240384,0.0772964482073376
+"Group only","Bumblebees","shared","rho",0.57825884312858,0.07893905046508
+"Group only","Bumblebees","covariate","rho",0.569265124225247,0.0789609994119091
+"Species Only","Bumblebees","shared","rho",25.1467024422856,14.3764917458852
+"Species Only","Bumblebees","covariate","rho",25.1897690127309,14.3974198934049
+"IDM","Hoverflies","shared","rho",0.332972423441296,0.031110617365923
+"IDM","Hoverflies","covariate","rho",0.631565477503498,0.0648678507706227
+"Group only","Hoverflies","shared","rho",0.692571635184273,0.0819419932073332
+"Group only","Hoverflies","covariate","rho",0.638899081664405,0.0654008304266989
+"Species Only","Hoverflies","shared","rho",24.8786332398265,14.4405218560523
+"Species Only","Hoverflies","covariate","rho",25.1327937311322,14.4446768489426
+"IDM","Solitary bees","shared","rho",0.0785479341248166,0.0108172577345796
+"IDM","Solitary bees","covariate","rho",0.375870840115226,0.0787544766073971
+"Group only","Solitary bees","shared","rho",0.405335248726679,0.090756735460889
+"Group only","Solitary bees","covariate","rho",0.383035189078643,0.0799542455034194
+"Species Only","Solitary bees","shared","rho",24.7662159142115,14.4490503050807
+"Species Only","Solitary bees","covariate","rho",25.126512453345,14.3075775141972
+"IDM","Bumblebees","shared","sigmaAlphaSites",0.389227927192148,0.0836563363320041
+"IDM","Bumblebees","covariate","sigmaAlphaSites",0.583970148638622,0.0919666577550497
+"Group only","Bumblebees","shared","sigmaAlphaSites",4.98728394039999,2.8629568337359
+"Group only","Bumblebees","covariate","sigmaAlphaSites",5.03752742397546,2.86708319882016
+"Species Only","Bumblebees","shared","sigmaAlphaSites",0.593168664500442,0.0904118429672817
+"Species Only","Bumblebees","covariate","sigmaAlphaSites",0.591362481144195,0.0904618903415039
+"IDM","Hoverflies","shared","sigmaAlphaSites",0.576048881654083,0.0681641316429242
+"IDM","Hoverflies","covariate","sigmaAlphaSites",0.615148132519477,0.0698039162308125
+"Group only","Hoverflies","shared","sigmaAlphaSites",4.98565813669675,2.86676998132277
+"Group only","Hoverflies","covariate","sigmaAlphaSites",4.99890580998408,2.87815235702258
+"Species Only","Hoverflies","shared","sigmaAlphaSites",0.606693943629887,0.0683753297601189
+"Species Only","Hoverflies","covariate","sigmaAlphaSites",0.605152107865087,0.0700590003503954
+"IDM","Solitary bees","shared","sigmaAlphaSites",0.865155038182417,0.140363181990262
+"IDM","Solitary bees","covariate","sigmaAlphaSites",0.991501709465349,0.16061388635002
+"Group only","Solitary bees","shared","sigmaAlphaSites",5.03959420556934,2.8839036123399
+"Group only","Solitary bees","covariate","sigmaAlphaSites",5.06894161875744,2.89733513521863
+"Species Only","Solitary bees","shared","sigmaAlphaSites",1.01506606875894,0.173211060635453
+"Species Only","Solitary bees","covariate","sigmaAlphaSites",1.02184087436267,0.179613803647706
+"IDM","Bumblebees","shared","sigmaAlphaSpecies",0.839843241091012,0.219442479580091
+"IDM","Bumblebees","covariate","sigmaAlphaSpecies",1.43244171504093,0.365291361827239
+"Group only","Bumblebees","shared","sigmaAlphaSpecies",5.04314193714868,2.8966520827338
+"Group only","Bumblebees","covariate","sigmaAlphaSpecies",4.99067555367879,2.89649528925132
+"Species Only","Bumblebees","shared","sigmaAlphaSpecies",1.50714741525683,0.364333017599521
+"Species Only","Bumblebees","covariate","sigmaAlphaSpecies",1.50225736870737,0.360487779854887
+"IDM","Hoverflies","shared","sigmaAlphaSpecies",0.885017483135888,0.130256652233193
+"IDM","Hoverflies","covariate","sigmaAlphaSpecies",1.48081690744245,0.182732163438923
+"Group only","Hoverflies","shared","sigmaAlphaSpecies",5.08395501819773,2.88896942023887
+"Group only","Hoverflies","covariate","sigmaAlphaSpecies",5.00612629199148,2.88457171590685
+"Species Only","Hoverflies","shared","sigmaAlphaSpecies",1.4713578182203,0.186065257964867
+"Species Only","Hoverflies","covariate","sigmaAlphaSpecies",1.49437333306169,0.181027525370558
+"IDM","Solitary bees","shared","sigmaAlphaSpecies",0.822435480274416,0.139211960604353
+"IDM","Solitary bees","covariate","sigmaAlphaSpecies",0.95640815361276,0.154850873513067
+"Group only","Solitary bees","shared","sigmaAlphaSpecies",4.95353155668763,2.90927266868586
+"Group only","Solitary bees","covariate","sigmaAlphaSpecies",4.98689136413842,2.91029589377717
+"Species Only","Solitary bees","shared","sigmaAlphaSpecies",0.970244132611795,0.157027375928277
+"Species Only","Solitary bees","covariate","sigmaAlphaSpecies",0.974325264179077,0.159259474294216
+"IDM","Bumblebees","shared","sigmaLatitude",0.634338262679166,0.197905326719922
+"IDM","Bumblebees","covariate","sigmaLatitude",0.733830772907733,0.225124742939106
+"Group only","Bumblebees","shared","sigmaLatitude",0.67611290847065,0.73447558581881
+"Group only","Bumblebees","covariate","sigmaLatitude",0.300007675246315,0.206925480791694
+"Species Only","Bumblebees","shared","sigmaLatitude",2.48971316579453,1.26595669671312
+"Species Only","Bumblebees","covariate","sigmaLatitude",2.42787875347001,1.15872443387383
+"IDM","Hoverflies","shared","sigmaLatitude",0.386522417718401,0.0800623268835529
+"IDM","Hoverflies","covariate","sigmaLatitude",0.456874808099768,0.0907110679557786
+"Group only","Hoverflies","shared","sigmaLatitude",0.651240555616437,0.609431451991742
+"Group only","Hoverflies","covariate","sigmaLatitude",0.222752097471281,0.155928452354486
+"Species Only","Hoverflies","shared","sigmaLatitude",0.529303947526428,0.113555943961134
+"Species Only","Hoverflies","covariate","sigmaLatitude",0.534200514998106,0.113139412604807
+"IDM","Solitary bees","shared","sigmaLatitude",0.768921253034943,0.152095106947573
+"IDM","Solitary bees","covariate","sigmaLatitude",0.798218760991213,0.1495017157073
+"Group only","Solitary bees","shared","sigmaLatitude",0.638028659962074,0.486459936072491
+"Group only","Solitary bees","covariate","sigmaLatitude",0.38476028371019,0.241483577781903
+"Species Only","Solitary bees","shared","sigmaLatitude",0.996371796860015,0.212678857442967
+"Species Only","Solitary bees","covariate","sigmaLatitude",0.989730026196761,0.215679026579374
+"IDM","Bumblebees","shared","sigmaSpecies",1.28561563190916,0.302755597116649
+"IDM","Bumblebees","covariate","sigmaSpecies",2.01439758397841,0.950544328068705
+"Group only","Bumblebees","shared","sigmaSpecies",4.41739689152929,2.67390907014132
+"Group only","Bumblebees","covariate","sigmaSpecies",5.03912986454986,2.88374126894861
+"Species Only","Bumblebees","shared","sigmaSpecies",3.21233522213561,1.48649222753057
+"Species Only","Bumblebees","covariate","sigmaSpecies",3.11963655554586,1.2529721811769
+"IDM","Hoverflies","shared","sigmaSpecies",1.19251167963433,0.147455368097231
+"IDM","Hoverflies","covariate","sigmaSpecies",0.810944143479679,0.170080633460254
+"Group only","Hoverflies","shared","sigmaSpecies",5.66942019703305,2.31279383168852
+"Group only","Hoverflies","covariate","sigmaSpecies",5.0042632848754,2.89693138230052
+"Species Only","Hoverflies","shared","sigmaSpecies",0.836616335837274,0.182948596747288
+"Species Only","Hoverflies","covariate","sigmaSpecies",0.821064631003085,0.181559184287868
+"IDM","Solitary bees","shared","sigmaSpecies",0.959338436390009,0.133028412200486
+"IDM","Solitary bees","covariate","sigmaSpecies",0.988697028113443,0.148693791361142
+"Group only","Solitary bees","shared","sigmaSpecies",4.43878011836065,2.40400279374998
+"Group only","Solitary bees","covariate","sigmaSpecies",4.9338331282282,2.88137555387825
+"Species Only","Solitary bees","shared","sigmaSpecies",1.02670352694919,0.158291548516294
+"Species Only","Solitary bees","covariate","sigmaSpecies",1.01999309341186,0.157861585134084

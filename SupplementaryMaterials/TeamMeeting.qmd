@@ -1,0 +1,136 @@
+---
+title: "IDM Presentation"
+author: "Kwaku Peprah Adjei"
+format: pdf
+editor: visual
+---
+
+# Researh questions and how to answer them
+
+## A. Can we combine data from different taxonomic levels to make inference aboult alpha diversity?
+
+-   Devolop an IDM for this problem
+-   Alpha diversity measures to use: Hills indeces
+-   Check convergence of MCMC for identifiability issues
+
+## Does IDM perform better than single models?
+
+-   Compare true simulated hills indices values to estimated ones using
+    -   RMSE : issues with outliers?
+
+    -   Mahalanobis : correlation between estimates?
+    
+- SO model should not be able to estimate the Shannon index properly
+
+## Does the performance depend on:
+
+-   The mothod of parameter sharing: `shared`, `covariate`, `interractions`?
+
+-   the number of species?
+
+`Currently the time taken to run a simulation increases with the number of species. Should we use comparatively smaller number of species or number of simulations?`
+
+## Is information gained from species occupancy models greater than group count data?
+
+-   Use the log predictive density between IDM and single models
+
+    -   issues with different sample nodes
+
+    -   Do you average?
+
+# Methods of parameter sharing and the hills indices relative abundance component
+
+
+In this presentation:
+
+$i$ is the `species index`
+
+$j$ is the `site index`
+
+## 1. `Shared`
+
+$$
+\begin{split}
+log(\lambda_{ij}) &= cloglog(\psi_{ij}) = \beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij}; \quad  \eta_{ij} \sim N(0, \Sigma).\\
+\zeta_{ij} &= \lambda_{ij}
+\end{split}
+$$
+
+## 2. `Covariate`
+
+$$
+\begin{split}
+log(\lambda_{ij}) &=  \beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij}; \quad  \eta_{ij} \sim N(0, \Sigma).\\
+cloglog(\psi_{ij}) &= \nu + \beta_{1i}* X_{j} + \eta_{ij}\\
+\zeta_{ij} &= exp(\nu + \beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij})
+\end{split}
+$$
+
+## 3. `Interractions`
+
+$$
+\begin{split}
+log(\lambda_{ij}) &=  \beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij}; \quad  \eta_{ij} \sim N(0, \Sigma).\\
+cloglog(\psi_{ij}) &= \nu + \nu_{1}* X_{j} + \eta_{ij}\\
+\zeta_{ij} &= exp(\nu + \beta_{0i} + (\beta_{1i} + \nu_{1})* X_{j} + \eta_{ij})
+\end{split}
+$$
+
+# Hills Indices
+
+$$
+H_{j}' = - \sum_{i} {p_{ij} \ln(p_ij)}
+$$
+
+
+1. `shared`
+$$
+\begin{split}
+p_{ij} &= \frac{exp(\beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij})}{\sum_i exp(\beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij})}
+\end{split}
+$$
+
+This equation is the same for all the IDM and single models, but different $H'$ values due to priors for $\beta_{0i}$.
+
+
+2. `Covariate`
+
+For both IDM and SO model, 
+
+$$
+\begin{split}
+p_{ij} &= \frac{exp(\beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij})}{\sum_i exp(\beta_{0i} + \beta_{1i}* X_{j} + \eta_{ij})}
+\end{split}
+$$
+and for GC model,
+$$
+\begin{split}
+p_{ij} &= \frac{exp(\beta_{1i}* X_{j} + \eta_{ij})}{\sum_i exp(\beta_{1i}* X_{j} + \eta_{ij})}
+\end{split}
+$$
+
+
+3. `Interractions`
+
+For IDM and SO model, 
+$$
+\begin{split}
+p_{ij} &= \frac{exp(\beta_{0i} + \beta_{1i} * X_{j} + \eta_{ij})}{\sum_i exp(\beta_{0i} + \beta_{1i}  * X_{j} + \eta_{ij})},
+\end{split}
+$$
+
+and for GC model,
+$$
+\begin{split}
+p_{ij} &= \frac{exp(\eta_{ij})}{\sum_i exp(\eta_{ij})},
+\end{split}
+$$
+
+
+# Exploratory Data Analysis
+
+```{r}
+source("exploratoryAnalysis.R")
+
+```
+

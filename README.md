@@ -1,5 +1,7 @@
 # Integrating data from different taxonomic resolutions to better estimate community alpha diversity
 
+[![DOI](https://zenodo.org/badge/424611928.svg)](https://zenodo.org/badge/latestdoi/424611928)
+
 This repository is for the paper titled "Integrating data from different taxonomic resolutions to better estimate community alpha diversity". The scripts for the analysis are stored in different folders to make the workflow easier.
 
 ## idmFunctions

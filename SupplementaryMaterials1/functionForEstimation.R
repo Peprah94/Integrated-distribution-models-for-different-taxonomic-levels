@@ -19,7 +19,7 @@ library(cowplot)
 library(dplyr)
 library(tidyr)
 # devtools::install_github("https://github.com/colinharrower/BRCmap")
-library(BRCmap)
+#library(BRCmap)
 if(!require(devtools)) install.packages("devtools")
 #unix::rlimit_as(100*10^9)
 

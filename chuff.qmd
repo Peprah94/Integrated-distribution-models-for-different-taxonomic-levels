@@ -1,0 +1,124 @@
+---
+title: "chuff"
+format: pdf
+editor: visual
+---
+
+## Quarto
+
+## Posterior predictive checks
+
+```{r, include = FALSE}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig.cap: "Histogram of the test statistic used for the posterior predictive checks for the case study. Each of the models used in the study has two histograms: one for the Pantrap data and the other is for the FIT count data. For each pair of plots, the title is named with the insect group as the prefix: BB for bumblebees, HV for hoverflies and SB for solitary bees. The suffix of the title is named after the insect group used to model the data: integrated distribution model with shared likelihood structure (IDMSH), integrated distribution model with covariate likelihood structure (IDMCO), species occupancy model (SOM), group count model with shared likelihood structure (GCMSH) and group count model with covariate likelihood structure (GCMCO). The value of the test statistic from the original data is coloured in the red vertical lines and the Bayesian p-value ($Bpv$) is presented in each of the histograms. The models that do not model a particular dataset has empty histograms and the Bayesian p-value is NA."
+#| label: ppp
+#| fig-height: 14
+#| fig-width: 16
+
+ #load data
+  load("CaseStudy/bumblebees/posteriorPredCheck.RData")
+  bb <- ret
+  load("CaseStudy/hoverflies/posteriorPredCheck.RData")
+  hv <- ret
+    load("CaseStudy/solitarybees/posteriorPredCheck.RData")
+  sb <- ret
+
+
+  allResults <- c(bb,
+                  hv,
+                  sb)
+
+  # return estimated p-values
+ estPvalues <-  lapply(allResults, function(x){
+    colMeans(x[,c(1,2,9)])
+  })%>%
+    do.call("rbind",.)%>%
+    as.data.frame("")%>%
+    mutate(model = rep(c("IDMSH", "SOM", "IDMCO", "GCMSH", "GCMCO"), 3),
+           insectGrps = rep(insectGrps, each = 5))
+colnames(estPvalues)[1:3] <- c("PanTrap", "FITcnt_median", "FITcnt_mean")
+
+
+## Histogram of values
+
+histPlots <- lapply(allResults, function(x){
+  #convert data to data frame
+  x <- x%>%
+    as.data.frame()
+  
+  #pantrap data
+  ## Extract x-intercept, p-value and points to annotate figure
+  x_intercept <-x$V4[1]
+  x1 <- mean(range(x$V3))
+  y1 <- 1
+  bpv <- mean(x$V1)
+    if(is.na(bpv)){ 
+      bpv <- 'NA'
+        x1 <- 0.1
+  y1 <- 1
+      }
+  pvalText <- paste("Bpv = ", bpv)
+  
+  ##plot data
+  pantrap <- x %>%
+    ggplot()+
+    geom_histogram(mapping = aes(x = V3))+
+    ylab("Counts")+
+    xlab("Average occupied sites")+
+    theme_classic()+
+    geom_vline(xintercept = x_intercept, col = "red")+
+    annotate(geom = 'label', x = x1, y = y1, 
+             label = pvalText)
+  
+  #FIT count data
+  ## Extract x-intercept, p-value and points to annotate figure
+  x_intercept <-x$V8[1]
+  x1 <- mean(range(x$V7))
+  y1 <- 1
+  bpv <- mean(x$V9)
+    if(is.na(bpv)){ 
+      bpv <- 'NA'
+        x1 <- 0.1
+  y1 <- 1
+      }
+  pvalText <- paste("Bpv = ", bpv)
+  
+  ##plot data
+  fitCnts <- x %>%
+    ggplot()+
+    geom_histogram(mapping = aes(x = V7))+
+    ylab("Counts")+
+    xlab("Average FIT counts")+
+    theme_classic()+
+    geom_vline(xintercept = x_intercept, col = "red")+
+    annotate(geom = 'label', x = x1, y = y1, 
+             label = pvalText)
+  
+  ggpubr::ggarrange(pantrap, fitCnts, nrow = 1)
+})
+
+ggpubr::ggarrange( plotlist = histPlots,
+                   nrow = 5, 
+                   ncol = 3,
+                   hjust = -2.5,
+                   labels = c("BB - IDMSH",
+                              "BB - SOM",
+                              "BB - IDMCO",
+                              "BB - GCMSH",
+                              "BB - GCMCO",
+                              "HV - IDMSH",
+                              "HV - SOM",
+                              "HV - IDMCO",
+                              "HV - GCMSH",
+                              "HV - GCMCO",
+                              "SB - IDMSH",
+                              "SB - SOM",
+                              "SB - IDMCO",
+                              "SB - GCMSH",
+                              "SB - GCMCO"))
+
+```
+
+$$\mu_{\beta_0}$$ and $$\mu_{\omega_0}$$ and latitudinal effect ($$\mu_{\beta_1}$$)

@@ -34,9 +34,8 @@ shannonEstimates <- read_csv("Figures/shannonEstimates.csv")
 rHatEstimates <- read_csv("Figures/rHatEstimates.csv")
 
 # load correlation matrices plot
-load("Figures/correlationMatrices.RData")
+#load("Figures/correlationMatrices.RData")
 ```
-
 
 ## Convergence checks
 
@@ -68,7 +67,8 @@ rHatEstimates%>%
 
 ## Estimates of community hyperparameters
 
-### Community mean 
+### Community mean
+
 ```{r}
 #| echo: false
 #| fig.cap: "Community mean estimated from the five models in this study for intercept (mulambda and muSpecies) and latitudinal effect (muLatitude) from the PoMS case study."
@@ -98,6 +98,7 @@ parsEstimates%>%
 ```
 
 ### Community variance
+
 ```{r}
 #| echo: false
 #| fig.cap: "Community variance estimated from the five models in this study for the detection probability (sigmaAlphaSpecies, sigmaAlphaSites, sigmaAlphaVisits), and the observation process (intercept: sigmaLambda, sigmaSpecies and latitudinal effect: sigmaLatitude)from the PoMS case study."
@@ -154,7 +155,6 @@ parsEstimates%>%
   scale_color_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH', 'SOM'))+
   scale_shape_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH','SOM'))
 ```
-
 
 ## Posterior predictive checks
 
@@ -270,4 +270,3 @@ ggpubr::ggarrange( plotlist = histPlots,
                               "SB - GCMCO"))
 
 ```
-

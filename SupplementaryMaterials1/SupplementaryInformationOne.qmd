@@ -1,14 +1,78 @@
 ---
-title: "Supplementary Information 1 : Exploratory Analysis of the PoMS data."
-author: "Kwaku Peprah Adjei"
-bibliography: references.bib
+title: "Supplementary Information 1 : Integrating data from different taxonomic resolutions to better estimate community alpha diversity."
+author:
+  - name: Kwaku Peprah Adjei
+    affil-id: 1,2
+  - name: Claire Carvell
+    affil-id: 3
+  - name: Nick Isaac
+    affil-id: 3
+  - name: Francesca Mancini
+    affil-id: 3
+  - name: Robert B. O'Hara
+    affil-id: 1,2
+affiliations:
+  - id: 1
+    name: Department of Mathematical Sciences, Norwegian University of Science and Technology, Trondheim Norway
+    city: Trondheim
+    state: Norway
+  - id: 2
+    name: Center for Biodiversity Dynamics, Norwegian University of Science and Technology, Trondheim Norway
+    city: Trondheim
+    state: Norway
+  - id: 3
+    name: UK Center of Ecology and Hydrology, Wallingford UK
+    city: Trondheim
+    state: Norway
+bibliography: references.bib 
+format: 
+  pdf:
+    number-sections: false
+    toc: false
+    keep-tex: true
+    cite-method: natbib
+    colorlinks: true
+    linkcolor: "black"
+    citecolor: "black"
+    template-partials: 
+      - title.tex
+    include-in-header:
+      text: |
+        \usepackage[noblocks]{authblk}
+        \renewcommand*{\Authsep}{, }
+        \renewcommand*{\Authand}{, }
+        \renewcommand*{\Authands}{, }
+        \renewcommand\Affilfont{\small}
+editor: visual
+csl: methods-in-ecology-and-evolution.csl
+output: 
+  pdf_document:
+    fig_crop: true
+    keep_tex: true
+    number-sections: false
+    latex_engine: xelatex
 header-includes:
   - \usepackage{caption}                            
   - \DeclareCaptionLabelFormat{Sformat}{#1 S1-#2}     
   - \captionsetup[table]{labelformat=Sformat}  
   - \captionsetup[figure]{labelformat=Sformat} 
-format: pdf
-editor: visual
+  - \usepackage{mathtools}
+  - \usepackage[sort, round]{natbib}
+  - \usepackage[left]{lineno}
+  - \usepackage{tabularx}
+  - \linenumbers
+  - \usepackage[a4paper, total={6in, 10in}]{geometry}
+  - \usepackage{longtable}
+  - \usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black]{hyperref}
+  - \usepackage{amsmath,amssymb,amsfonts,amsthm}
+  - \usepackage{multirow}
+  - \usepackage{setspace}\doublespacing
+  - \renewcommand{\abstractname}{Summary}  
+  - \usepackage{bm}
+  - \usepackage{algorithm}
+  - \usepackage{algpseudocode}
+  - \usepackage{rotating}
+indent: true
 ---
 
 ```{r, message = FALSE, echo = FALSE}
@@ -17,19 +81,21 @@ library(kableExtra)
 library(knitr)
 ```
 
-# Introduction
+# Exploratory analysis
 
-An overlooked step in developing integrated distribution models is fitting models for each dataset to explore which models best fit each dataset. IDM takes advantage of the shared parameters to get better inference, and is not an escape from doing exploratory analysis on each dataset.
+## Introduction
 
-This supplementary material performs exploratory analysis on the UK pollinator monitoring scheme [@breeze2021pollinator]. As mentioned in the main paper, we have data from three insect groups: bumblebees, solitarybees and hoverflies; and the models are fit independently for each insect group. The exploration is therefore also done for each insect group.
+An overlooked step in developing integrated distribution models is exploring a model that fits each dataset. IDM takes advantage of the shared parameters to get better inference, and is not an escape from doing exploratory analysis on each dataset.
 
-A Poisson and negative binomial generalised linear (mixed) models (GLMM hereafter) were fit for each insect group in the group counts dataset and binomial GLMM to the species occupancy data. The Poisson and logistic regression are the simplest model to fit to the count and occupancy data respectively [@fahrmeir2022regression]. When there is overdispersion in the count data, the negative binomial regression will fit the count data better [@fahrmeir2022regression]. The negative binomial regression adds an extra parameter $\phi$ to model the extra variation in the data. Values of $\psi$ closer to $0$ indicate overdispersion in the count data. A likelihood ratio test of significance for the overdispersion parameter was performed. For each insect group, the log-likelihoods from the Poisson and negative Binomial regression models ($l(\hat\beta_{NB})$ and $l(\hat\beta_{Poi})$ respectively) using the negative binomial regression model were retrieved and test statistic is:
+This supplementary material performs exploratory analysis on the UK pollinator monitoring scheme [@breeze2021pollinator]. As mentioned in the main paper, we have data from three insect groups: bumblebees, solitary bees and hoverflies; and the models are fit independently for each insect group. The exploration is therefore also done for each insect group.
+
+A Poisson and negative binomial generalised linear (mixed) models (GLMM hereafter) were fit for each insect group in the group counts dataset and binomial GLMM to the species occupancy data. The Poisson and logistic regression are the simplest model to fit to the count and occupancy data respectively [@fahrmeir2022regression]. When there is overdispersion in the count data, the negative binomial regression will fit the count data better [@fahrmeir2022regression]. The negative binomial regression adds an extra parameter $\phi$ to model the extra variation in the data. Values of $\phi$ closer to $0$ indicate overdispersion in the count data. A likelihood ratio test of significance for the overdispersion parameter was performed. For each insect group, the log-likelihoods from the Poisson and negative Binomial regression models ($l(\hat\beta_{NB})$ and $l(\hat\beta_{Poi})$ respectively) were retrieved and test statistic used was:
 
 $$
 LRT = -2 \times (l(\hat\beta_{NB}) - l(\hat\beta_{Poi})) \sim \chi^2_1.
 $$ The negative binomial distribution is chosen for the count data if the p-value is less than $0.05$ and Poisson is chosen when the p-value if greater than $0.05$.
 
-We performed stepwise model selection technique to obtain the best model for the count and occupancy data. Four model defined in @eq-models are fit for the exploration analysis. The first model $M_{0}$ is an intercept-only model; the second model $M_{1}$ has an intercept and latitudinal gradient as a covariate; the third model $M_{2}$ adds visits as a random effect to model $M_{1}$; and the last model $M_{3}$ adds species as a random effect to model $M_{2}$. Model $M_{3}$ was for the species occupancy data only, but the others were for both datasets. We fit the models $M_{0}$ and $M_{1}$ with the lme4 package [@bates2009package] and $M_{2}$ and $M_{3}$ with the MASS package [@venables2022MASS] in R. The models were compared using their BIC values. We chose BIC over AIC values because they have high penalty for model complexity. The best model was the model with the lowest BIC value.
+We performed stepwise model selection technique to obtain the best model for the count and occupancy data. We fit four models which we defined in @eq-models: the first model $M_{0}$ was an intercept-only model; the second model $M_{1}$ has an intercept and latitudinal gradient as a covariate; the third model $M_{2}$ added visits as a random effect to model $M_{1}$; and the last model $M_{3}$ added species as a random effect to model $M_{2}$. Model $M_{3}$ was for the species occupancy data only, but the others were for both datasets. We fit the models $M_{0}$ and $M_{1}$ with the lme4 package [@bates2009package] and $M_{2}$ and $M_{3}$ with the MASS package [@venables2022MASS] in R. The models were compared using their BIC values. We chose BIC over AIC values because they have high penalty for model complexity. The best model was the model with the lowest BIC value.
 
 $$
 \begin{split}
@@ -42,7 +108,7 @@ $$ {#eq-models}
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 #| label: tbl-allModels
-#| tbl-cap: Coefficients from the best models (model equations defined above for BestModelIndex) for the group count and species occupancy data. The BestModelIndex shows which of the model fitted were selected as the best model (where best model is defined as the fitted model with the lowest BIC value); the Intercept and Latitude are fixed effect estimates; VisitVar and SpeciesVar are visit and species random effect variance estimates respectively; Psi is the overdispersion parameter of the negative Binomial and the P.value is the p-value estimate from likelihood ration test of overdispersion (the difference between the Poisson and Negative Binomial models for each insect group).
+#| tbl-cap: Coefficients from the best models (model equations defined above for BestModelIndex) for the group count and species occupancy data. The BestModelIndex shows which of the model fitted were selected as the best model (where best model is defined as the fitted model with the lowest BIC value); the Intercept and Latitude are fixed effect estimates; VisitVar and SpeciesVar are visit and species random effect variance estimates respectively; Psi is the overdispersion parameter of the negative Binomial and the P.value is the p-value estimate from likelihood ratio test of overdispersion (the difference between the Poisson and Negative Binomial models for each insect group).
 #| tbl-cap-location: bottom
 
 
@@ -59,13 +125,13 @@ kable_styling(latex_options = c("striped", "scale_down"))%>%
    group_rows(., group_label = "Solitarybees", start_row = 5, end_row = 6, hline_before = TRUE)
 ```
 
-# Results and Interpretation
+## Results and Interpretation
 
-Figures @fig-bbGCPlot, @fig-hvGCPlot and @fig-sbGCPlot shows the distribution the bumblebees, hoverflies and solitarybees group count data for each visit to the $74$ PoMS sites; Figures @fig-bbSOPlot, @fig-hvSOPlot and @fig-sbSOPlot shows the distribution of the proportion of species occupying a given PoMS sites at each survey visit. The figures @fig-bbGCPlot to @fig-sbSOPlot indicate a significant missing observation across the strudy regions and visits; with possible overdispersed group counts. The best models for the group count data showed significant overdispersion ($\phi_{BB} = 0.53$, $\phi_{HV} = 0.66$ and $\phi_{SB} = 0.37$ with p-values closer to $0$; @tbl-allModels).
+@fig-bbGCPlot, @fig-hvGCPlot and @fig-sbGCPlot shows the distribution the bumblebees, hoverflies and solitary bees group count data for each visit to the $74$ PoMS sites; @fig-bbSOPlot, @fig-hvSOPlot and @fig-sbSOPlot shows the distribution of the proportion of species occupying a given PoMS sites at each survey visit. The @fig-bbGCPlot to @fig-sbSOPlot indicate a significant missing observation across the study regions and visits; with possible overdispersed group counts. The best models for the group count data showed significant overdispersion ($\phi_{BB} = 0.53$, $\phi_{HV} = 0.66$ and $\phi_{SB} = 0.37$ with p-values closer to $0$; @tbl-allModels).
 
-Furthermore, there were significant intercept and latitudinal gradient effect to both the group counts and species occupancy data (@tbl-allModels). Specifically, average abundance decreased as the latitudinal gradient increased for all insect groups ($\beta_{latitude} = -0.47, -0.83, -0.56$ for bumblebees, hoverflies and solitary bees respectively; @tbl-allModels); occupancy probability increased as latitudinal gradient increased for bumblebees and hoverflies ($\beta_{latitude} = 0.08, 0.23$ for bumblebees and hoverflies respectively; @tbl-allModels ), but the opposite for the solitarybees ($\beta_{latitude} = -0.82$; @tbl-allModels).
+Furthermore, there were significant intercept and latitudinal gradient effect to both the group counts and species occupancy data (@tbl-allModels). Specifically, average abundance decreased as the latitudinal gradient increased for all insect groups ($\beta_{latitude} = -0.47, -0.83, -0.56$ for bumblebees, hoverflies and solitary bees respectively; @tbl-allModels); occupancy probability increased as latitudinal gradient increased for bumblebees and hoverflies ($\beta_{latitude} = 0.08, 0.23$ for bumblebees and hoverflies respectively; @tbl-allModels), but the opposite for the solitary bees ($\beta_{latitude} = -0.82$; @tbl-allModels).
 
-In addition, there was significant species effect and visit effect on species occupancy probability (since model $M_3$ was chosen for all the insect groups as the best model; @tbl-allModels), but insignificant visit effects on bumblebees and solitary bees abundance (since model $M_1$ was the best model; @tbl-allModels).
+In addition, there was significant species and visit effect on species occupancy probability (since model $M_3$ was chosen for all the insect groups as the best model; @tbl-allModels), but insignificant visit effects on bumblebees and solitary bees abundance (since model $M_1$ was the best model; @tbl-allModels).
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, fig.height=20, fig.width=20}
 #| label: fig-bbGCPlot
@@ -115,9 +181,9 @@ rr <- exploratoryDataPlots(3)
  rr[[2]]
 ```
 
-# Combining both datasets
+## Combining both datasets
 
-From the results and discussions above, we model the group count with a negative binomial GLMM with latitudinal gradient as a covariate and visit random effect. The species occupancy probabilities were modeled with a binomial GLMM with latitudinal gradient as a covariate and species and visit random effect. We allow both models to share latitudinal gradient effect as well as species and visit random effects. The details are decribed under section ... in the main paper.
+From the results and discussions above, we model the group count with a negative binomial GLMM with latitudinal gradient as a covariate and visit random effect. The species occupancy probabilities were modeled with a binomial GLMM with latitudinal gradient as a covariate and species and visit random effect. We allow both models to share latitudinal gradient effect as well as species and visit random effects. The details are describe under section $2.2$ in the main paper.
 
 ### References
 

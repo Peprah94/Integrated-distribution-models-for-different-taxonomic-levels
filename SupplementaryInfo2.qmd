@@ -1,0 +1,287 @@
+---
+title: "Supplementary Information Two: Integrating data from different taxonomic resolutions to better estimate community alpha diversity."
+author:
+  - name: Kwaku Peprah Adjei
+    affil-id: 1,2
+  - name: Claire Carvell
+    affil-id: 3
+  - name: Nick Isaac
+    affil-id: 3
+  - name: Francesca Mancini
+    affil-id: 3
+  - name: Robert B. O'Hara
+    affil-id: 1,2
+affiliations:
+  - id: 1
+    name: Department of Mathematical Sciences, Norwegian University of Science and Technology, Trondheim Norway
+    city: Trondheim
+    state: Norway
+  - id: 2
+    name: Center for Biodiversity Dynamics, Norwegian University of Science and Technology, Trondheim Norway
+    city: Trondheim
+    state: Norway
+  - id: 3
+    name: UK Center of Ecology and Hydrology, Wallingford UK
+    city: Trondheim
+    state: Norway
+format: 
+  pdf:
+    number-sections: false
+    toc: false
+    keep-tex: false
+    cite-method: natbib
+    colorlinks: true
+    linkcolor: "black"
+    citecolor: "black"
+    template-partials: 
+      - title.tex
+    include-in-header:
+      text: |
+        \usepackage[noblocks]{authblk}
+        \renewcommand*{\Authsep}{, }
+        \renewcommand*{\Authand}{, }
+        \renewcommand*{\Authands}{, }
+        \renewcommand\Affilfont{\small}
+output: 
+  pdf_document:
+    fig_crop: true
+    keep_tex: true
+    number-sections: false
+    latex_engine: xelatex
+editor: visual
+editor_options: 
+  chunk_output_type: console
+header-includes: 
+  - \usepackage{caption}                      
+  - \DeclareCaptionLabelFormat{Sformat}{#1 S2-#2}     
+  - \captionsetup[table]{labelformat=Sformat}  
+  - \captionsetup[figure]{labelformat=Sformat} 
+  - \usepackage{mathtools}
+  - \usepackage[sort, round]{natbib}
+  - \usepackage[left]{lineno}
+  - \usepackage{tabularx}
+  - \linenumbers
+  - \usepackage[a4paper, total={6in, 10in}]{geometry}
+  - \usepackage{longtable}
+  - \usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black]{hyperref}
+  - \usepackage{amsmath,amssymb,amsfonts,amsthm}
+  - \usepackage{multirow}
+  - \usepackage{setspace}
+  - \renewcommand{\abstractname}{Summary}  
+  - \usepackage{bm}
+  - \usepackage{algorithm}
+  - \usepackage{algpseudocode}
+  - \usepackage{rotating}
+---
+
+# Supplementary figures from the Case Study: Application to PoMS data
+
+
+```{r, warning=FALSE, message=FALSE}
+#| echo: false
+#| warning: false
+#| message: false
+source("idmFunctions/functionForEstimation.R")
+load("CaseStudy/data_idm.RData")
+
+# Define parameters
+models <- c("IDMSH" , "SOM", "IDMCO", "GCMSH", "GCMCO")
+insectGrps <- c("Bumblebees", "Hoverflies", "Solitary bees")
+nGroups = length(insectGrps)
+nModels = length(models)
+
+#load data from Figures folder
+parsEstimates <- read_csv("Figures/sigmaEstimates.csv")
+shannonEstimates <- read_csv("Figures/shannonEstimates.csv")
+rHatEstimates <- read_csv("Figures/rHatEstimates.csv")
+
+# load correlation matrices plot
+#load("Figures/correlationMatrices.RData")
+```
+
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| fig.cap: "Posterior mean of the Shannon diversity (H') estimates for each of the $74$ PoMS sites from the five models in this study summarised in Table 2 for each of the insect groups: A) bumblebees, B) hoverflies and C) solitary bees."
+#| label: shannonCaseStudy
+#| fig-height: 8
+#| fig-width: 10
+library(BRCmap)
+  coords <- gr_let2num(shannonEstimates$coords)
+  shannonEstimates <- cbind(coords, shannonEstimates)
+  UK_countries_lowres@data$ID = rownames(UK_countries_lowres@data)
+  UK_countries_lowres_df <- ggplot2::fortify(UK_countries_lowres)
+
+  #plot Shannon map for each group
+  shannonMap <- lapply(as.list(c("Bumblebees", "Hoverflies" , "Solitary bees")), function(x){
+    shannonEstimates%>%
+      filter(insects == x)%>%
+       mutate(model = ifelse(model == "IGCO", "GCMCO",
+                             ifelse(model == "IGSH", "GCMSH", model)))%>%
+   ggplot() +
+      geom_polygon(data = UK_countries_lowres_df,
+                   aes(x = long, y = lat, group = group),
+                   fill = "gray93", colour = "black") +
+      geom_point(aes(x = EASTING, y = NORTHING,
+                     fill = mean), shape = 22, size = 1,
+                 color = "gray") +
+      facet_grid(~model) +
+      cowplot::theme_map(font_size = 10) +
+      theme(legend.position = "right",
+            #legend.title = element_blank(),
+            strip.placement = 'outside',
+            strip.background = element_rect(colour = "black", fill = "white"),
+            text = element_text(size = 10))+
+      #coord_equal() +
+      scale_fill_viridis_c(name = "")
+  })
+
+
+  shannonMapRet <-  ggarrange(plots = shannonMap,
+            nrow = 3,
+            legend = "right",
+           # labels = c("a) Bumblebees", "b) Hoverflies", "c) Solitary bees"),
+           labels = c("A)", "B)", "C)"),
+            label.args = list(gp = grid::gpar(font = 2, cex =
+                                                1)))
+```
+
+```{r, warning=FALSE, message=FALSE}
+#| echo: false
+#| fig.cap: "Community mean estimated from the five models in this study for intercept and latitude effect from the PoMS case study."
+#| label: muEstimates
+#| fig-height: 5
+
+parEsts <- parsEstimates%>%
+  filter(!grepl("rho|sigma",variable))%>%
+  mutate(value = ifelse(variable == "mulambda" & model %in% c("IDMSH", "SOM", "IGSH"), NA, value))%>%
+    mutate(value = ifelse(variable == "muSpecies" & model == "IGCO", NA, value))
+
+var1 <- expression(mu[beta[1]])
+var2 <- expression(mu[beta[0]])
+var3 <- expression(mu[omega[0]])
+
+parEsts$variable <- factor(parEsts$variable, 
+                           labels = c(var2,
+                                      var1,
+                                      var3))
+
+  parEsts%>%
+    ggplot( aes(x=insects, y=value, col=as.factor(model),  shape = as.factor(model))) +
+  geom_point(position=position_dodge(0.5))+
+  geom_errorbar(aes(ymin=value-sd, ymax=value+sd), width=0.5,
+                position=position_dodge(0.5))+
+  geom_hline(yintercept = 0, linetype = "dashed")+
+  facet_grid( ~ variable, labeller = "label_parsed")+
+  scale_x_discrete(guide = guide_axis(angle = 45)) +
+  xlab("Insect group")+
+  ylab(expression(paste("Posterior mean" %+-% "SE")))+
+  theme_classic()+
+  coord_trans()+
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        strip.placement = 'outside',
+        strip.background = element_rect(colour = "black", fill = "white"))+
+  scale_color_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH', 'SOM'))+
+  scale_shape_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH','SOM'))
+```
+
+```{r, warning=FALSE, message=FALSE}
+#| echo: false
+#| fig.cap: "Community variance estimated from the five models in this study for the detection probability, and the observation process and latitudinal effect from the PoMS case study."
+#| label: varEstimates
+#| fig-height: 8
+#| fig-width: 10
+
+
+parEsts <- parsEstimates%>%
+    filter(!grepl("rho|mu",variable))
+var1 <- expression(sigma[zeta])
+var2 <- expression(sigma[nu])
+var3 <- expression(sigma[omega])
+var4 <- expression(sigma[beta[1]])
+var5 <- expression(sigma[rho])
+var6 <- expression(sigma[beta[0]])
+
+parEsts$variable <- factor(parEsts$variable, 
+                           labels = c(var1,
+                                      var2,
+                                      var3,
+                                      var4,
+                                      var5,
+                                      var6))
+
+parEsts%>%
+    ggplot( aes(x=insects, y=value, col=as.factor(model), shape=as.factor(model))) +
+    geom_point(position=position_dodge(0.5))+
+    geom_errorbar(aes(ymin=value-sd, ymax=value+sd), width=.2,
+                  position=position_dodge(0.5))+
+    ylim(c(0, 5))+
+    facet_grid( ~ variable, scales = "free_y", labeller = "label_parsed")+
+    scale_x_discrete(guide = guide_axis(angle = 45)) +
+    xlab("Insect group")+
+    ylab(expression(paste("Posterior mean" %+-% "SE")))+
+  theme_classic()+
+    coord_trans()+
+    theme(legend.position = "bottom", legend.title = element_blank(),
+          strip.placement = 'outside',
+          strip.background = element_rect(colour = "black", fill = "white"))+
+  scale_color_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH', 'SOM'))+
+  scale_shape_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH','SOM'))
+```
+
+```{r, warning=FALSE, message=FALSE}
+#| echo: false
+#| fig.cap: "Overdispersion parameter estimated from the models that included the FIT count data. "
+#| label: rhoEstimates
+#| fig-height: 5
+
+parsEstimates%>%
+    filter(!grepl("sigma|mu",variable))%>%
+    filter(model != "SOM")%>%
+    #mutate(value = ifelse(method == "Species Only", NA, value))%>%
+    ggplot( aes(x=insects, y=value, col=as.factor(model), shape = as.factor(model))) +
+    geom_point(position=position_dodge(0.5))+
+    geom_errorbar(aes(ymin=value-sd, ymax=value+sd), width=.2,
+                  position=position_dodge(0.5))+
+    #facet_grid(. ~ model)+
+    scale_x_discrete(guide = guide_axis(angle = 45)) +
+    xlab("Insect group")+
+    ylab(expression(paste("Posterior mean" %+-% "SE")))+
+    theme_classic()+
+    coord_trans()+
+    theme(legend.position = "bottom", legend.title = element_blank(),
+          strip.placement = 'outside',
+          strip.background = element_rect(colour = "black", fill = "white"))+
+  scale_color_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH', 'SOM'))+
+  scale_shape_discrete(labels=c('IDMCO', 'IDMSH', 'GCMCO', 'GCMSH','SOM'))
+```
+
+
+```{r, warning=FALSE, message=FALSE}
+#| echo: false
+#| fig.cap: "Rhat estimates for the Markov chain Monte Carlo samples for each of models used in this study. A model was considered to have converged if the r-hat estimates were less than or equal to 1.1 (corresponding to the left side of the dashed line.)"
+#| label: rhatCaseStudy
+#| fig-height: 6
+#| fig-width: 10
+
+
+rHatEstimates%>%
+ # filter(!grepl("Cov|shan|eta.lam",Parameter))%>%
+  filter(grepl("sigma|rho|mu",Parameter))%>%
+  mutate(method = rep(rep(models, each = 150/(nGroups*nModels)), nGroups),
+         insects = rep(insectGrps,
+                       each= 150/nGroups))%>%
+  ggplot(aes(x = Rhat, y = Parameter, col = method))+
+  geom_point(position=position_dodge(0.5))+
+  geom_vline(xintercept = 1.1, linetype = "dashed")+
+  facet_grid( ~ insects)+
+  theme_classic()+
+  theme(legend.position = "bottom", legend.title = element_blank(),
+        strip.placement = 'outside',
+        strip.background = element_rect(colour = "black", fill = "white")#,
+       # text = element_text(size = 20)
+        )
+```
+

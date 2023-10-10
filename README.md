@@ -1,6 +1,6 @@
-# Integrated-distribution-models-for-different-taxonomic-levels
+# Integrating data from different taxonomic resolutions to better estimate community alpha diversity
 
-This repository is for the paper titled "IDM for data from different taxonomic levels". The scripts for the analysis are stored in different folders to make the workflow easier.
+This repository is for the paper titled "Integrating data from different taxonomic resolutions to better estimate community alpha diversity". The scripts for the analysis are stored in different folders to make the workflow easier.
 
 ## idmFunctions
 
